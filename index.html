@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mi monstruo · Aula Siurot</title>
+<meta name="theme-color" content="#0f2557">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='55' r='42' fill='%23ff8a1f'/%3E%3Ccircle cx='36' cy='48' r='10' fill='%23fff'/%3E%3Ccircle cx='64' cy='48' r='10' fill='%23fff'/%3E%3Ccircle cx='36' cy='49' r='5' fill='%2314234a'/%3E%3Ccircle cx='64' cy='49' r='5' fill='%2314234a'/%3E%3Cpath d='M36 70q14 12 28 0' stroke='%2314234a' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ===== Base común ===== */
+:root{
+ --noche:#0f2557;--azul:#1e4fa3;--azulv:#2f6fe0;--tinta:#14234a;--tinta2:#4a5a85;--nube:#f3f6ff;--nube2:#e8eefc;--linea:#dbe3f7;
+ --naranja:#ff8a1f;--naranja2:#f06a00;--verde:#1f9d55;--verde2:#e3f7ea;--rojo:#e5484d;--rojo2:#fdeaea;--oro:#ffc21a;--blanco:#fff;
+ --r1:12px;--r2:18px;--r3:26px;--sombra:0 10px 30px rgba(15,37,87,.18);--sombra2:0 2px 0 rgba(20,35,74,.08);
+ --f-tit:"Baloo 2","Nunito",system-ui,sans-serif;--f-txt:"Nunito",system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+html{background:#163a80}
+body{font-family:var(--f-txt);color:var(--tinta);background:linear-gradient(160deg,var(--noche),var(--azul)) fixed;min-height:100vh;min-height:100dvh;font-size:16px;line-height:1.4}
+h1,h2,h3{font-family:var(--f-tit);line-height:1.15;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--azulv);outline-offset:2px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:11px 18px;font-weight:800;font-size:15px;line-height:1.1;background:var(--nube2);color:var(--tinta);transition:transform .12s,filter .12s,background .15s;min-height:44px;text-decoration:none;white-space:nowrap}
+.btn:hover{filter:brightness(1.04)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn:disabled{opacity:.5;pointer-events:none}
+.btn.pri{background:linear-gradient(180deg,#ff9d3d,var(--naranja2));color:#fff;box-shadow:0 3px 0 #c45400,0 6px 14px rgba(240,106,0,.3)}
+.btn.sec{background:var(--nube2);color:var(--tinta)}
+.btn.azul{background:linear-gradient(180deg,#4b8bff,#1f5fd6);color:#fff;box-shadow:0 3px 0 #1846a3}
+.btn.verde{background:linear-gradient(180deg,#34c06c,#178a46);color:#fff;box-shadow:0 3px 0 #0f6a34}
+.btn.peligro{background:var(--rojo);color:#fff;box-shadow:0 3px 0 #a92e32}
+.btn.fant{background:transparent;color:inherit}
+.btn.fant:hover{background:rgba(127,150,210,.15)}
+.btn.chico{min-height:34px;padding:7px 12px;font-size:14px;border-radius:11px}
+.btn.icono{width:44px;padding:0}
+.btn.icono.chico{width:34px}
+
+/* Campos */
+.campo{display:flex;flex-direction:column;gap:5px;margin:0 0 12px}
+.campo>span{font-weight:800;font-size:14px;color:var(--tinta2)}
+.campo input,.campo select,.campo textarea,.inp{border:2px solid var(--linea);border-radius:12px;padding:10px 12px;background:#fff;min-height:44px;width:100%}
+.campo input:focus,.campo select:focus,.campo textarea:focus,.inp:focus{border-color:var(--azulv);outline:0}
+.fila{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fila>.campo{flex:1;min-width:120px}
+.interruptor{display:flex;gap:10px;align-items:center;font-weight:700;cursor:pointer}
+.interruptor input{appearance:none;width:46px;height:28px;border-radius:99px;background:#cdd6ee;position:relative;transition:background .2s;flex:none;margin:0;cursor:pointer}
+.interruptor input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:transform .2s}
+.interruptor input:checked{background:var(--verde)}
+.interruptor input:checked::after{transform:translateX(18px)}
+
+/* Escena (fondo + monstruo) */
+.escena{position:relative;overflow:hidden;isolation:isolate}
+.escena>.fondo{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.escena>.mon{position:relative;width:100%;height:100%}
+
+/* Modales */
+.velo{position:fixed;inset:0;background:rgba(9,20,52,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:100;opacity:0;transition:opacity .2s}
+.velo.on{opacity:1}
+.modal{background:#fff;border-radius:var(--r3);box-shadow:0 30px 80px rgba(0,0,0,.35);width:min(560px,100%);max-height:min(88vh,860px);display:flex;flex-direction:column;transform:translateY(18px) scale(.98);transition:transform .22s cubic-bezier(.3,1.3,.5,1);overflow:hidden}
+.velo.on .modal{transform:none}
+.modal.pequeña{width:min(420px,100%)}
+.modal.grande{width:min(860px,100%)}
+.m-cab{display:flex;align-items:center;gap:10px;padding:16px 18px 6px}
+.m-cab h2{font-size:22px;flex:1}
+.m-x{border:0;background:var(--nube2);width:38px;height:38px;border-radius:50%;font-size:16px;font-weight:800;flex:none}
+.m-cuerpo{padding:8px 18px 14px;overflow:auto;flex:1;overscroll-behavior:contain}
+.m-pie{display:flex;gap:10px;justify-content:flex-end;padding:12px 18px 18px;border-top:1px solid var(--nube2);flex-wrap:wrap}
+.m-texto{margin:4px 0 6px;font-size:17px}
+@media(max-width:620px){
+ .velo{align-items:flex-end;padding:0}
+ .modal{border-radius:24px 24px 0 0;max-height:92vh;max-height:92dvh;width:100%!important;transform:translateY(40px)}
+ .m-pie{padding-bottom:max(18px,env(safe-area-inset-bottom))}
+ .m-pie .btn{flex:1}
+}
+
+/* Avisos */
+#toasts{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;z-index:200;width:min(94vw,520px);pointer-events:none}
+.toast{pointer-events:auto;background:var(--tinta);color:#fff;border-radius:16px;padding:10px 12px 10px 16px;font-weight:700;display:flex;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);transform:translateY(20px);opacity:0;transition:.25s;max-width:100%}
+.toast.on{transform:none;opacity:1}
+.toast span{flex:1;display:flex;gap:8px;align-items:center}
+.toast .t-ic{font-size:20px}
+.toast button{border:0;background:rgba(255,255,255,.16);color:#fff;font-weight:800;border-radius:10px;padding:7px 12px}
+.toast.ok{background:#14603a}.toast.error{background:#a32a2e}
+
+/* Burbuja de puntos */
+.burbuja-pts{position:fixed;transform:translate(-50%,-50%);font:800 34px var(--f-tit);color:#fff;pointer-events:none;z-index:150;animation:subir 1.3s ease-out forwards;padding:2px 14px;border-radius:99px;background:var(--verde);box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.burbuja-pts.neg{background:var(--rojo)}
+.burbuja-pts.oro{background:linear-gradient(180deg,#ffd34d,#f2a200);color:#5a3a00}
+@keyframes subir{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}15%{opacity:1;transform:translate(-50%,-60%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-260%) scale(1)}}
+.confeti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:300}
+
+/* Varios */
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:99px;padding:2px 10px;font-weight:800;font-size:13px;background:var(--nube2);white-space:nowrap}
+.chip.ok{background:var(--verde2);color:#14603a}.chip.mal{background:var(--rojo2);color:#a32a2e}.chip.oro{background:#fff1c7;color:#7a5200}
+.seg{display:inline-flex;background:var(--nube2);border-radius:14px;padding:4px;gap:4px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;border-radius:10px;padding:7px 14px;font-weight:800;color:var(--tinta2);min-height:36px}
+.seg button[aria-pressed=true]{background:#fff;color:var(--tinta);box-shadow:var(--sombra2)}
+.vacio{text-align:center;color:var(--tinta2);padding:28px 12px}
+.vacio b{display:block;font-family:var(--f-tit);font-size:20px;color:var(--tinta);margin-bottom:4px}
+.barra{height:14px;border-radius:99px;background:var(--nube2);overflow:hidden;position:relative}
+.barra>i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ffb347,var(--naranja));transition:width .6s cubic-bezier(.3,1.2,.5,1)}
+.cargando{display:grid;place-items:center;min-height:60vh;color:#fff;font:800 20px var(--f-tit)}
+.cargando i{width:46px;height:46px;border-radius:50%;border:5px solid rgba(255,255,255,.25);border-top-color:var(--naranja);animation:gira 1s linear infinite;margin:0 auto 12px;display:block}
+@keyframes gira{to{transform:rotate(360deg)}}
+.demo-aviso{background:#fff1c7;color:#6b4800;font-weight:700;font-size:13px;text-align:center;padding:6px 12px}
+.demo-aviso button{border:0;background:transparent;text-decoration:underline;font-weight:800;color:inherit;padding:0 4px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ===== Animaciones de los monstruitos ===== */
+.mon{display:block;overflow:visible}
+.mon .eye{transform-box:fill-box;transform-origin:center;animation:m-blink 4.6s infinite}
+.mon .cuerpo{transform-origin:100px 196px;animation:m-bob 3.2s ease-in-out infinite}
+.mon .brazo-d{transform-box:fill-box;transform-origin:20% 50%}
+.mon .fx-tw{transform-box:fill-box;transform-origin:center;animation:m-tw 2.4s ease-in-out infinite}
+.mon .fx-up{animation:m-up 3.6s ease-in-out infinite}
+.mon .fx-pulse{transform-box:fill-box;transform-origin:center;animation:m-pulse 2.8s ease-in-out infinite}
+.mon .pet{animation:m-pet 2.2s ease-in-out infinite}
+.mon.salta .cuerpo{animation:m-pop .7s cubic-bezier(.3,1.6,.5,1)}
+.mon.saluda .brazo-d{animation:m-wave .5s ease-in-out 3}
+.mon.triste .cuerpo{animation:m-sad .9s ease-in-out}
+.mon.quieto *,.quieto .mon *{animation:none!important}
+@keyframes m-blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+@keyframes m-bob{50%{transform:translateY(-5px) scale(1.01,.99)}}
+@keyframes m-pop{0%{transform:none}25%{transform:scale(1.16,.84)}55%{transform:translateY(-30px) scale(.94,1.08)}80%{transform:translateY(0) scale(1.06,.95)}100%{transform:none}}
+@keyframes m-sad{30%{transform:scale(1.05,.9) translateY(6px)}60%{transform:rotate(-4deg)}80%{transform:rotate(3deg)}}
+@keyframes m-wave{50%{transform:rotate(-40deg)}}
+@keyframes m-tw{0%,100%{opacity:.25;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes m-up{0%{opacity:0;transform:translateY(16px)}25%{opacity:1}100%{opacity:0;transform:translateY(-40px)}}
+@keyframes m-pulse{50%{opacity:.6;transform:scale(1.04)}}
+@keyframes m-pet{50%{transform:translateY(-4px)}}
+@media(prefers-reduced-motion:reduce){.mon *{animation:none!important}}
+
+/* ===== App del alumnado ===== */
+.al{display:grid;grid-template-columns:minmax(320px,410px) 1fr;gap:22px;max-width:1200px;margin:0 auto;padding:18px;align-items:start}
+.izq{position:sticky;top:18px}
+.tarjeta-mon{background:#fff;border-radius:32px;padding:12px;box-shadow:var(--sombra)}
+.top-al{display:flex;align-items:center;gap:8px;padding:2px 4px 10px}
+.top-al .hola{flex:1;font:800 15px var(--f-txt);color:var(--tinta2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-al .hola b{color:var(--tinta)}
+.escenario{position:relative;aspect-ratio:4/5;border-radius:24px;overflow:hidden;isolation:isolate;cursor:pointer;user-select:none}
+.escenario>.fondo{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.escenario>.mon{position:absolute;left:4%;width:92%;bottom:0;height:auto;max-height:100%}
+.pill-pts{position:absolute;top:12px;right:12px;background:#fff;border-radius:99px;padding:5px 14px 5px 10px;font:800 24px var(--f-tit);box-shadow:0 4px 12px rgba(0,0,0,.2);display:flex;align-items:center;gap:4px;z-index:2}
+.pill-pts small{font:800 11px var(--f-txt);color:var(--tinta2);display:block;line-height:1;margin-top:-2px}
+.pill-pts.sube{animation:latido .6s}
+@keyframes latido{40%{transform:scale(1.25)}}
+.chip-niv{position:absolute;top:12px;left:12px;z-index:2;background:rgba(20,35,74,.78);color:#fff;border-radius:99px;padding:5px 12px;font-weight:900;font-size:13px;backdrop-filter:blur(4px)}
+.probando{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:var(--azulv);color:#fff;font-weight:900;border-radius:99px;padding:5px 14px;font-size:13px;z-index:2;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.bocadillo{position:absolute;left:50%;top:9%;transform:translateX(-50%);background:#fff;border-radius:18px;padding:8px 14px;font-weight:900;z-index:3;box-shadow:0 6px 16px rgba(0,0,0,.2);animation:boca 2.4s forwards;white-space:nowrap;font-size:15px}
+.bocadillo::after{content:"";position:absolute;left:50%;bottom:-8px;border:9px solid transparent;border-top-color:#fff;border-bottom:0;transform:translateX(-50%)}
+@keyframes boca{0%{opacity:0;transform:translate(-50%,10px) scale(.8)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+.alias-f{display:flex;align-items:center;justify-content:center;gap:6px;margin:12px 0 2px}
+.alias-f b{font:800 28px var(--f-tit)}
+.alias-f button{border:0;background:var(--nube2);border-radius:50%;width:34px;height:34px;font-size:15px}
+.nivel-c{padding:4px 10px 8px}
+.nivel-c .fila-n{display:flex;justify-content:space-between;font-weight:800;font-size:14px;color:var(--tinta2);margin-bottom:5px}
+.nivel-c .fila-n b{color:var(--tinta)}
+.nivel-c .barra{height:16px}
+.nivel-c .barra>i{background:linear-gradient(90deg,#8e5cf2,#2f8cff)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.stats div{background:var(--nube);border-radius:16px;padding:8px;text-align:center}
+.stats b{display:block;font:800 22px var(--f-tit);line-height:1.1}
+.stats small{font-weight:800;color:var(--tinta2);font-size:11.5px}
+.der{min-width:0}
+.tabs-al{display:flex;gap:6px;background:rgba(255,255,255,.12);padding:6px;border-radius:20px;margin-bottom:16px}
+.tabs-al button{flex:1;border:0;background:transparent;color:#dbe6ff;font-weight:800;padding:9px 6px;border-radius:15px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:14px;position:relative}
+.tabs-al .ic{font-size:22px;line-height:1.1}
+.tabs-al button[aria-current=page]{background:#fff;color:var(--tinta)}
+.salir-al{border:0;background:var(--nube2);color:var(--tinta);border-radius:12px;padding:7px 12px;font-weight:800;font-size:14px}
+.son-al{border:0;background:var(--nube2);border-radius:12px;width:38px;height:36px;font-size:17px}
+.bloque{background:#fff;border-radius:26px;padding:18px;box-shadow:var(--sombra);margin-bottom:16px}
+.bloque h2{font-size:22px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.bloque h2 .esp{flex:1}
+.saludo{color:#fff;margin:2px 0 14px}
+.saludo h1{font-size:30px}
+.saludo p{margin:2px 0 0;font-weight:700;opacity:.85}
+.meta-al{display:flex;gap:14px;align-items:center}
+.meta-al .m-ic{font-size:40px;width:64px;height:64px;border-radius:20px;background:#fff3e0;display:grid;place-items:center;flex:none}
+.meta-al .barra{height:18px;margin-top:6px}
+.meta-al b{font:800 18px var(--f-tit)}
+.meta-al small{font-weight:800;color:var(--tinta2)}
+.recs-al{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.rec-al{background:var(--nube);border-radius:18px;padding:12px;text-align:center;font-weight:800;display:flex;flex-direction:column;gap:5px;align-items:center}
+.rec-al .r-ic{font-size:34px}
+.rec-al.ya{background:#e3f7ea;box-shadow:inset 0 0 0 2px #9fdcb5}
+.rec-al small{font-size:12px;color:var(--tinta2)}
+.lista-al{list-style:none;margin:0;padding:0}
+.lista-al li{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:1px solid var(--nube2)}
+.lista-al li:last-child{border:0}
+.lista-al .li-ic{width:42px;height:42px;border-radius:14px;background:var(--nube);display:grid;place-items:center;font-size:22px;flex:none}
+.lista-al .li-t{flex:1;min-width:0}
+.lista-al .li-t b{display:block}
+.lista-al .li-t small{color:var(--tinta2);font-weight:700}
+.lista-al .li-v{font:800 20px var(--f-tit);color:var(--verde)}
+.lista-al .li-v.neg{color:var(--rojo)}.lista-al .li-v.canje{color:var(--naranja2)}
+
+/* Taller */
+.cats{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:none;margin-bottom:6px}
+.cats::-webkit-scrollbar{display:none}
+.cats button{flex:none;border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:14px;padding:8px 14px;font-weight:800;min-height:42px;display:flex;align-items:center;gap:6px}
+.cats button[aria-pressed=true]{background:#fff;color:var(--tinta)}
+.cats .cnt{font-size:11px;background:rgba(0,0,0,.12);border-radius:99px;padding:1px 6px}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:12px}
+.item{border:0;background:#fff;border-radius:20px;padding:6px 6px 9px;box-shadow:0 4px 0 #cbd6f2,0 10px 20px rgba(10,26,70,.15);position:relative;color:var(--tinta);transition:transform .12s;text-align:center}
+.item:hover{transform:translateY(-2px)}
+.item .escena{aspect-ratio:1;border-radius:14px}
+.item .escena .mon{position:absolute;left:8%;width:84%;bottom:0}
+.item .escena .mon.zoom{left:0;width:100%;height:100%;top:0}
+.item b{display:block;font-size:14.5px;margin:6px 0 4px;line-height:1.15}
+.item[aria-pressed=true]{box-shadow:0 0 0 4px var(--azulv),0 4px 0 #cbd6f2}
+.item.puesto{box-shadow:0 0 0 4px var(--naranja),0 4px 0 #cbd6f2}
+.item.bloq .escena{filter:grayscale(.9) opacity(.7)}
+.item .candado{position:absolute;top:10px;left:10px;background:var(--tinta);color:#fff;border-radius:99px;padding:2px 8px;font-size:12px;font-weight:900}
+.item .chip{font-size:12.5px}
+#compra{position:sticky;bottom:14px;z-index:20}
+.barra-compra{margin-top:14px;background:#fff;border-radius:22px;padding:12px;display:flex;gap:10px;align-items:center;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.barra-compra .bc-t{flex:1;min-width:0}
+.barra-compra .bc-t b{display:block;font:800 18px var(--f-tit)}
+.barra-compra .bc-t small{font-weight:800;color:var(--tinta2)}
+.coleccion{display:flex;justify-content:space-between;align-items:center;color:#fff;font-weight:800;margin:2px 2px 10px}
+
+/* Logros */
+.logros{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.logro{background:#fff;border-radius:20px;padding:14px 12px;text-align:center;box-shadow:var(--sombra2);position:relative}
+.logro .l-ic{width:66px;height:66px;margin:0 auto 6px;border-radius:50%;display:grid;place-items:center;font-size:34px;background:radial-gradient(circle at 35% 30%,#fff6c9,#ffc21a);box-shadow:0 4px 0 #d99a00,inset 0 -4px 0 rgba(0,0,0,.08)}
+.logro b{display:block;font:800 16px var(--f-tit)}
+.logro small{display:block;font-weight:700;color:var(--tinta2);font-size:12.5px;margin:2px 0 8px}
+.logro.no .l-ic{background:var(--nube2);box-shadow:none;filter:grayscale(1);opacity:.6}
+.logro .barra{height:8px}
+.colecc-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.colecc-cats div{display:grid;grid-template-columns:28px 1fr auto;gap:4px 8px;align-items:center;font-weight:800;font-size:14px}
+.colecc-cats .barra{grid-column:2/4;height:8px}
+
+/* Acceso */
+.acceso{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:20px}
+.acceso-caja{background:#fff;border-radius:32px;padding:28px;width:min(430px,100%);text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.acceso-caja h1{font-size:34px;margin:4px 0 2px}
+.acceso-caja>p{color:var(--tinta2);font-weight:700;margin:0 0 18px}
+.acceso-caja .campo{text-align:left}
+.acceso-caja .campo input{font-size:20px;font-weight:800;min-height:54px;letter-spacing:.5px}
+.trio{display:flex;justify-content:center;align-items:flex-end;height:150px;margin-top:-90px}
+.trio .mon{width:120px;margin:0 -16px;filter:drop-shadow(0 10px 10px rgba(0,0,0,.25))}
+.trio .mon:nth-child(2){width:156px;z-index:2}
+.err-acc{background:var(--rojo2);color:#a32a2e;font-weight:800;border-radius:12px;padding:8px 12px;margin-bottom:12px}
+.clave-w{position:relative}
+.clave-w button{position:absolute;right:6px;bottom:6px;border:0;background:var(--nube2);border-radius:10px;width:42px;height:42px;font-size:18px}
+.recordar{display:flex;gap:8px;align-items:flex-start;text-align:left;font-weight:700;font-size:14px;color:var(--tinta2);margin:4px 0 16px;cursor:pointer}
+.recordar input{width:20px;height:20px;accent-color:var(--naranja);flex:none;margin-top:1px}
+.entrar{width:100%;font-size:19px;min-height:56px}
+
+/* Subida de nivel */
+.subida{text-align:center}
+.subida .escena{width:200px;aspect-ratio:4/5;border-radius:26px;margin:0 auto}
+.subida .escena .mon{position:absolute;left:5%;width:90%;bottom:0}
+.subida h2{font-size:32px;margin:12px 0 4px}
+.nuevas{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+
+@media(max-width:860px){
+ .al{grid-template-columns:1fr;padding:0 0 92px;gap:0}
+ .izq{position:relative;top:0;z-index:5}
+ .tarjeta-mon{border-radius:0 0 30px 30px;padding:10px 12px 12px}
+ .escenario{aspect-ratio:auto;height:44vh;min-height:270px;max-height:460px}
+ .escenario>.mon{left:50%;width:auto;height:100%;transform:translateX(-50%)}
+ .der{padding:14px 12px 0}
+ .tabs-al{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-radius:22px 22px 0 0;margin:0;padding:6px 8px max(8px,env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(15,37,87,.2)}
+ .tabs-al button{color:var(--tinta2);font-size:12px}
+ .tabs-al button[aria-current=page]{background:#fff3e6;color:var(--naranja2)}
+ body.en-taller .izq{position:sticky;top:0}
+ body.en-taller .escenario{height:30vh;min-height:200px}
+ body.en-taller .alias-f,body.en-taller .nivel-c,body.en-taller .stats,body.en-taller .top-al{display:none}
+ body.en-taller .tarjeta-mon{padding:8px 10px 10px}
+ #compra{bottom:84px}
+ #toasts{bottom:calc(92px + env(safe-area-inset-bottom))}
+ .items{grid-template-columns:repeat(3,1fr);gap:9px}
+ .item b{font-size:13px}
+ .saludo h1{font-size:26px}
+}
+@media(max-width:380px){.items{grid-template-columns:repeat(2,1fr)}}
+
+</style>
+</head>
+<body data-app="alumno">
+<div id="demo" class="demo-aviso" hidden>Modo demostración: prueba con el usuario <b>anag</b> y la clave <b>123abc</b>.</div>
+<div id="raiz"><div class="cargando"><div><i></i>Cargando…</div></div></div>
+<script>
+/* ============================================================
+   ⚙️ CONFIGURACIÓN
+   Pega aquí la configuración de tu proyecto de Firebase
+   (Consola de Firebase → ⚙ Configuración del proyecto → Tus apps → SDK, opción "Config").
+   Si la dejas en null, la app funciona en MODO DEMOSTRACIÓN (datos solo en este navegador).
+   Debe ser la MISMA configuración en aula-maestro.html y aula-alumno.html.
+   ============================================================ */
+const CONFIG_FIREBASE = {
+  apiKey: "AIzaSyCRKKuh47Vs6SymHPQ41cgCDgqyJmbhPH0",
+  authDomain: "monstruos-40458.firebaseapp.com",
+  projectId: "monstruos-40458",
+  storageBucket: "monstruos-40458.firebasestorage.app",
+  messagingSenderId: "972676836828",
+  appId: "1:972676836828:web:371e6febb002f321aa3319"
+};
+// Dominio inventado para las cuentas del alumnado (no se envían correos). Igual en las dos apps.
+const DOMINIO_ALUMNOS = 'alumnos.siurot.net';
+const CACHE_LOCAL = false;
+/* ===== Motor de monstruitos (SVG por capas) ===== */
+const Mon = (() => {
+  const INK = '#1b1b3a';
+  const f1 = n => Math.round(n * 10) / 10;
+  const mix = (h, t, a) => { const n = parseInt(h.slice(1), 16); return '#' + [n >> 16, n >> 8 & 255, n & 255].map(c => Math.round(c + (t - c) * a).toString(16).padStart(2, '0')).join(''); };
+  const lum = h => { const n = parseInt(h.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255; };
+  const HEART = 'M0 .45C-.35 .2-.55 0-.55-.22C-.55-.45-.32-.55-.16-.5C-.07-.47 0-.4 0-.32C0-.4 .07-.47 .16-.5C.32-.55 .55-.45 .55-.22C.55 0 .35 .2 0 .45Z';
+  const SPARK = 'M0-1Q.12-.12 1 0Q.12 .12 0 1Q-.12 .12-1 0Q-.12-.12 0-1Z';
+  const star = (cx, cy, r, ri = r * .45, n = 5, rot = -90) => {
+    let p = []; for (let i = 0; i < n * 2; i++) { const a = (rot + i * 180 / n) * Math.PI / 180, rr = i % 2 ? ri : r; p.push(f1(cx + rr * Math.cos(a)) + ',' + f1(cy + rr * Math.sin(a))); } return p.join(' ');
+  };
+  const fluffy = (cx, cy, rx, ry, n) => {
+    let d = ''; for (let i = 0; i <= n; i++) {
+      const a = -Math.PI / 2 + i * 2 * Math.PI / n, x = cx + rx * Math.cos(a), y = cy + ry * Math.sin(a);
+      if (!i) { d += `M${f1(x)} ${f1(y)}`; continue; }
+      const m = a - Math.PI / n; d += `Q${f1(cx + rx * 1.17 * Math.cos(m))} ${f1(cy + ry * 1.17 * Math.sin(m))} ${f1(x)} ${f1(y)}`;
+    } return d + 'Z';
+  };
+  // Pseudoaleatorio estable (para patrones y fondos)
+  const rng = s => () => (s = (s * 16807) % 2147483647) / 2147483647;
+
+  /* ---------- Catálogo ---------- */
+  // [id, nombre, precio, nivel mínimo]
+  const CAT = {
+    color: { n: 'Color', ic: '🎨', i: [['violeta', 'Violeta', 0], ['lima', 'Lima', 0], ['azul', 'Azul', 0], ['naranja', 'Naranja', 10], ['rosa', 'Rosa', 10], ['turquesa', 'Turquesa', 15], ['amarillo', 'Amarillo', 15], ['coral', 'Coral', 15], ['menta', 'Menta', 20], ['lavanda', 'Lavanda', 20], ['chicle', 'Chicle', 25], ['noche', 'Noche', 25], ['arcoiris', 'Arcoíris', 120, 6], ['galaxia', 'Galaxia', 150, 8], ['oro', 'Oro', 200, 10]] },
+    forma: { n: 'Forma', ic: '🫧', i: [['blob', 'Redondito', 0], ['alto', 'Alto', 20], ['cuadrado', 'Cuadrado', 20], ['pera', 'Pera', 25], ['gota', 'Gotita', 30], ['peludo', 'Peludito', 45, 3]] },
+    patron: { n: 'Piel', ic: '🐾', i: [['ninguno', 'Lisa', 0], ['lunares', 'Lunares', 15], ['manchas', 'Manchas', 20], ['rayas', 'Rayas', 20], ['estrellas', 'Estrellas', 30], ['corazones', 'Corazones', 30], ['escamas', 'Escamas', 40, 4]] },
+    ojos: { n: 'Ojos', ic: '👀', i: [['dos', 'Dos ojos', 0], ['uno', 'Un ojo', 10], ['felices', 'Felices', 15], ['brillantes', 'Brillantes', 15], ['dormilon', 'Dormilón', 20], ['tres', 'Tres ojos', 25], ['ciclope', 'Cíclope', 30], ['estrella', 'Estrellados', 40, 3], ['corazon', 'Enamorados', 40, 3]] },
+    boca: { n: 'Boca', ic: '👄', i: [['sonrisa', 'Sonrisa', 0], ['carcajada', 'Carcajada', 10], ['sorpresa', 'Sorpresa', 10], ['colmillos', 'Colmillos', 15], ['lengua', 'Lengua', 15], ['gatuna', 'Gatuna', 20], ['dientona', 'Dientona', 20], ['bigote', 'Bigote', 35, 2]] },
+    cabeza: { n: 'Cabeza', ic: '🦄', i: [['ninguna', 'Nada', 0], ['mechon', 'Mechón', 15], ['orejas', 'Orejitas', 20], ['brote', 'Brote', 20], ['cuernos', 'Cuernos', 25], ['antena', 'Antena', 30], ['conejo', 'Conejo', 30], ['cresta', 'Cresta', 35], ['unicornio', 'Unicornio', 60, 5]] },
+    sombrero: { n: 'Sombrero', ic: '🎩', i: [['ninguno', 'Ninguno', 0], ['lazo', 'Lazo', 15], ['flor', 'Flor', 20], ['gorra', 'Gorra', 30], ['lana', 'Gorro de lana', 30], ['auriculares', 'Auriculares', 40], ['vaquero', 'Vaquero', 45], ['chistera', 'Chistera', 50], ['mago', 'Mago', 60, 4], ['corona', 'Corona', 100, 7]] },
+    comp: { n: 'Complemento', ic: '🎀', i: [['ninguno', 'Ninguno', 0], ['pajarita', 'Pajarita', 20], ['gafas', 'Gafas', 25], ['sol', 'Gafas de sol', 35], ['bufanda', 'Bufanda', 35], ['collar', 'Collar', 30], ['medalla', 'Medalla', 50, 3], ['capa', 'Capa de héroe', 80, 5]] },
+    efecto: { n: 'Efecto', ic: '✨', i: [['ninguno', 'Ninguno', 0], ['brillos', 'Brillos', 40], ['burbujas', 'Burbujas', 40], ['notas', 'Música', 50], ['corazones', 'Corazones', 50], ['aura', 'Aura dorada', 120, 9]] },
+    mascota: { n: 'Mascota', ic: '🐣', i: [['ninguna', 'Ninguna', 0], ['pollito', 'Pollito', 60], ['estrellita', 'Estrellita', 60], ['fantasmin', 'Fantasmín', 70], ['pulpito', 'Pulpito', 80, 4], ['blandi', 'Blandi', 90, 6]] },
+    fondo: { n: 'Fondo', ic: '🏞️', i: [['aula', 'Aula', 0], ['cielo', 'Cielo', 10], ['selva', 'Selva', 20], ['playa', 'Playa', 25], ['atardecer', 'Atardecer', 30], ['nieve', 'Nieve', 30], ['mar', 'Fondo del mar', 40], ['espacio', 'Espacio', 50], ['arcoiris', 'Arcoíris', 70, 5]] }
+  };
+  const ORDEN = Object.keys(CAT);
+  const BASE = { color: 'violeta', forma: 'blob', patron: 'ninguno', ojos: 'dos', boca: 'sonrisa', cabeza: 'ninguna', sombrero: 'ninguno', comp: 'ninguno', efecto: 'ninguno', mascota: 'ninguna', fondo: 'aula' };
+
+  /* ---------- Niveles (por puntos ganados en total) ---------- */
+  const NIVELES = [
+    [0, 'Huevito'], [10, 'Recién nacido'], [25, 'Cachorro'], [45, 'Travieso'], [70, 'Curioso'], [100, 'Valiente'],
+    [140, 'Brillante'], [190, 'Explorador'], [250, 'Inventor'], [320, 'Experto'], [400, 'Sabio'], [500, 'Héroe'],
+    [620, 'Campeón'], [760, 'Maestro'], [920, 'Leyenda'], [1100, 'Mítico']
+  ];
+  const nivel = total => { let l = 1; NIVELES.forEach((n, i) => { if (total >= n[0]) l = i + 1; }); return l; };
+  const infoNivel = total => {
+    const l = nivel(total), a = NIVELES[l - 1][0], b = NIVELES[l] ? NIVELES[l][0] : null;
+    return { n: l, nombre: NIVELES[l - 1][1], desde: a, hasta: b, pct: b ? (total - a) / (b - a) : 1, faltan: b ? b - total : 0 };
+  };
+
+  // Mapas para guardar en la base de datos (las reglas validan compras con ellos)
+  function mapas() {
+    const precios = {}, req = {};
+    ORDEN.forEach(k => CAT[k].i.forEach(it => { precios[k + ':' + it[0]] = it[2]; if (it[3]) req[k + ':' + it[0]] = NIVELES[it[3] - 1][0]; }));
+    return { precios, req };
+  }
+  const item = (k, id) => CAT[k] && CAT[k].i.find(x => x[0] === id);
+
+  /* ---------- Colores ---------- */
+  const COL = { violeta: '#8e5cf2', lima: '#5bc236', azul: '#2f8cff', naranja: '#ff8a1f', rosa: '#ff5fa2', turquesa: '#17bfae', amarillo: '#ffc21a', coral: '#f2574b', menta: '#3fd89a', lavanda: '#a98bff', chicle: '#ff7ad9', noche: '#3d4a9f', arcoiris: '#ff7a8a', galaxia: '#4a2f9a', oro: '#f4b724' };
+
+  /* ---------- Formas ---------- */
+  const SH = {
+    blob: { p: 'M100 55c46 0 70 34 70 76 0 38-30 58-70 58s-70-20-70-58c0-42 24-76 70-76z', t: 55, fy: 112, hy: 66, hw: 40, ax: 31 },
+    alto: { p: 'M100 38c38 0 56 30 56 80 0 52-22 72-56 72s-56-20-56-72c0-50 18-80 56-80z', t: 38, fy: 96, hy: 50, hw: 34, ax: 42 },
+    cuadrado: { p: 'M62 62h76c24 0 38 14 38 38v52c0 24-14 38-38 38H62c-24 0-38-14-38-38v-52c0-24 14-38 38-38z', t: 62, fy: 108, hy: 66, hw: 54, ax: 25 },
+    pera: { p: 'M100 50c30 0 44 24 46 52 2 22 30 38 30 60 0 22-34 28-76 28s-76-6-76-28c0-22 28-38 30-60 2-28 16-52 46-52z', t: 50, fy: 100, hy: 60, hw: 32, ax: 28 },
+    gota: { p: 'M100 36c14 30 66 52 66 100 0 36-28 54-66 54s-66-18-66-54c0-48 52-70 66-100z', t: 36, fy: 124, hy: 58, hw: 24, ax: 34 },
+    peludo: { p: fluffy(100, 127, 64, 57, 18), t: 64, fy: 114, hw: 40, hy: 76, ax: 30 }
+  };
+
+  /* ---------- Ojos ---------- */
+  function eye(x, y, r, st, col) {
+    if (st === 'f') return `<path d="M${x - r} ${y + r * .35}q${r} ${-r * 1.6} ${2 * r} 0" fill="none" stroke="${INK}" stroke-width="${f1(r * .38)}" stroke-linecap="round"/>`;
+    if (st === 'h') return `<path transform="translate(${x} ${y}) scale(${r * 2.3})" d="${HEART}" fill="#ff3d6e" stroke="#c4134a" stroke-width=".05"/><ellipse cx="${x - r * .4}" cy="${y - r * .45}" rx="${r * .22}" ry="${r * .15}" fill="#fff" opacity=".8"/>`;
+    const q = st === 'b' ? r * .74 : r * .56;
+    let pupil = `<circle cx="${x}" cy="${y + 1}" r="${f1(q)}" fill="${INK}"/><circle cx="${f1(x - q * .35)}" cy="${f1(y - q * .35)}" r="${f1(q * .32)}" fill="#fff"/>`;
+    if (st === 'b') pupil += `<circle cx="${f1(x + q * .4)}" cy="${f1(y + q * .45)}" r="${f1(q * .16)}" fill="#fff"/>`;
+    if (st === 's') pupil = `<polygon points="${star(x, y + 1, r * .78, r * .36)}" fill="${INK}" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/><circle cx="${f1(x - r * .18)}" cy="${f1(y - r * .1)}" r="${f1(r * .14)}" fill="#ffe27a"/>`;
+    let lid = '';
+    if (st === 'd') lid = `<path d="M${x - r - 1} ${y}a${r + 1} ${r + 1} 0 0 1 ${2 * r + 2} 0z" fill="${mix(col, 0, .12)}"/><path d="M${x - r - 1} ${y}h${2 * r + 2}" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`;
+    return `<g class="eye"><circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="${INK}" stroke-width="2"/>${pupil}${lid}</g>`;
+  }
+  const EYES = { dos: [2, 'n'], uno: [1, 'n'], felices: [2, 'f'], brillantes: [2, 'b'], dormilon: [2, 'd'], tres: [3, 'n'], ciclope: [1, 'b'], estrella: [2, 's'], corazon: [2, 'h'] };
+
+  /* ---------- Bocas ---------- */
+  const MOUTH = {
+    sonrisa: y => `<path d="M80 ${y}q20 20 40 0" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`,
+    carcajada: y => `<path d="M77 ${y - 3}q23 40 46 0z" fill="#4a1236" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M84 ${y + 1}h32" stroke="#fff" stroke-width="5" stroke-linecap="round"/><ellipse cx="100" cy="${y + 13}" rx="10" ry="5.5" fill="#ff7a9a"/>`,
+    sorpresa: y => `<ellipse cx="100" cy="${y + 6}" rx="9" ry="11" fill="#4a1236" stroke="${INK}" stroke-width="2.5"/><ellipse cx="100" cy="${y + 11}" rx="5" ry="3.5" fill="#ff7a9a"/>`,
+    colmillos: y => `<path d="M80 ${y}q20 18 40 0" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><path d="M86 ${y + 4}l3 9 4-7zM114 ${y + 4}l-3 9-4-7z" fill="#fff" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/>`,
+    lengua: y => `<path d="M93 ${y + 8}v9a7 7 0 0 0 14 0v-9z" fill="#ff7a9a" stroke="${INK}" stroke-width="2"/><path d="M100 ${y + 10}v6" stroke="#e0507a" stroke-width="2" stroke-linecap="round"/><path d="M80 ${y}q20 20 40 0" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`,
+    gatuna: y => `<path d="M82 ${y + 2}q9 10 18 0q9 10 18 0" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`,
+    dientona: y => `<path d="M76 ${y - 2}q24 26 48 0" fill="#4a1236" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M90 ${y + 3}h9.5v9a2 2 0 0 1-2 2h-5.5a2 2 0 0 1-2-2zM100.5 ${y + 3}h9.5v9a2 2 0 0 1-2 2h-5.5a2 2 0 0 1-2-2z" fill="#fff" stroke="${INK}" stroke-width="1.5"/>`,
+    bigote: y => `<path d="M84 ${y + 6}q16 14 32 0" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/><path d="M100 ${y - 4}c-6-6-16-6-22 2-4 5-12 5-14 0 4 12 18 14 26 8 4-3 7-6 10-10 3 4 6 7 10 10 8 6 22 4 26-8-2 5-10 5-14 0-6-8-16-8-22-2z" fill="#6b3d1f" stroke="#3d220f" stroke-width="1.5" stroke-linejoin="round"/>`
+  };
+
+  /* ---------- Cabeza (detrás del cuerpo). Origen: (100, hy) ---------- */
+  const HEAD = {
+    ninguna: () => '',
+    mechon: (s, g) => `<g transform="translate(100 ${g.t + 8})" fill="${s.dk}" stroke="${mix(s.col, 0, .42)}" stroke-width="2"><path d="M-4 0Q-22-6-24-22Q-10-16-2-8z"/><path d="M4 0Q22-6 24-22Q10-16 2-8z"/><path d="M-6 2Q-8-22 4-34Q0-18 6 2z"/></g>`,
+    orejas: (s, g) => { const o = (sx) => `<g transform="translate(${100 + sx * g.hw * .8} ${g.hy - 2}) scale(${sx * 1.25} 1.25) rotate(-14)"><path d="M-14 8L-6-28L16 2z" fill="${s.dk}" stroke="${mix(s.col, 0, .45)}" stroke-width="2.5" stroke-linejoin="round"/><path d="M-8 2L-4-17L8 0z" fill="#ff9fbb"/></g>`; return o(-1) + o(1); },
+    brote: (s, g) => `<g transform="translate(100 ${g.t + 6})"><path d="M0 0Q-2-14 2-24" fill="none" stroke="#3d9a3a" stroke-width="4" stroke-linecap="round"/><path d="M2-22C-6-34-24-32-26-24-16-16-4-16 2-22z" fill="#6fd25a" stroke="#3d9a3a" stroke-width="2.5" stroke-linejoin="round"/><path d="M2-22C8-36 26-36 28-26 20-16 8-16 2-22z" fill="#86e06f" stroke="#3d9a3a" stroke-width="2.5" stroke-linejoin="round"/></g>`,
+    cuernos: (s, g) => { const o = sx => `<g transform="translate(${100 + sx * g.hw * .78} ${g.hy + 2}) scale(${sx * 1.2} 1.2)"><path d="M-10 6Q-24-18-16-36Q-4-20 10 0z" fill="#fff3d6" stroke="#c9a05a" stroke-width="3" stroke-linejoin="round"/><path d="M-17-14q6 1 11 6M-14-24q5 1 8 5" stroke="#d9b675" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`; return o(-1) + o(1); },
+    antena: (s, g) => `<g transform="translate(100 ${g.t + 6})"><path d="M0 0Q-6-18 6-34" fill="none" stroke="${s.dk}" stroke-width="4.5" stroke-linecap="round"/><circle cx="7" cy="-38" r="9" fill="#ffcf3a" stroke="#d98a00" stroke-width="3"/><circle cx="4" cy="-41" r="3" fill="#fff" opacity=".8"/></g>`,
+    conejo: (s, g) => { const o = sx => `<g transform="translate(${100 + sx * g.hw * .5} ${g.hy + 2}) scale(${sx} 1) rotate(-10)"><ellipse cx="0" cy="-26" rx="11" ry="32" fill="${s.dk}" stroke="${mix(s.col, 0, .45)}" stroke-width="2.5"/><ellipse cx="0" cy="-24" rx="5.5" ry="22" fill="#ffb3c8"/></g>`; return o(-1) + o(1); },
+    cresta: (s, g) => `<g transform="translate(100 ${g.t + 10})" fill="#ff8a1f" stroke="#c45b00" stroke-width="2.5" stroke-linejoin="round"><path d="M-30 8L-24-22L-12-4L0-32L12-4L24-22L30 8z"/><path d="M-22-12l2 10M0-20v14M22-12l-2 10" stroke="#ffc27a" fill="none"/></g>`,
+    unicornio: (s, g) => `<g transform="translate(100 ${g.t + 10})"><path d="M-9 2L0-42L9 2z" fill="#fff3a8" stroke="#d9a400" stroke-width="2.5" stroke-linejoin="round"/><path d="M-6-8l11-5M-4-20l8-4M-2-31l5-2" stroke="#ff8fc1" stroke-width="3" stroke-linecap="round"/></g>`
+  };
+  const CENTRO = ['mechon', 'brote', 'antena', 'cresta', 'unicornio'];
+  const DELANTE = ['mechon', 'brote', 'antena', 'unicornio'];
+
+  /* ---------- Sombreros (encima). Origen (100, hy), escala con el ancho de la cabeza ---------- */
+  const HAT = {
+    ninguno: () => '',
+    lazo: () => `<g transform="translate(26 -4) rotate(18)"><path d="M0 0L-20-13Q-25 0-20 13zM0 0L20-13Q25 0 20 13z" fill="#ff4f8b" stroke="#c41f5c" stroke-width="2.5" stroke-linejoin="round"/><circle r="6" fill="#e0306f" stroke="#c41f5c" stroke-width="2"/></g>`,
+    flor: () => `<g transform="translate(24 -6)">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="0" cy="-10" rx="7" ry="10" fill="#fff" stroke="#e7a6c9" stroke-width="1.5" transform="rotate(${a})"/>`).join('')}<circle r="7" fill="#ffc21a" stroke="#d98a00" stroke-width="2"/></g>`,
+    gorra: () => `<path d="M-38 6Q-36-34 0-34Q36-34 38 6z" fill="#e8413c" stroke="#a6201d" stroke-width="2.5" stroke-linejoin="round"/><path d="M-6-34Q-14-14-14 6M6-34Q14-14 14 6" stroke="#c22d29" stroke-width="2" fill="none"/><path d="M20 2q34-8 52 6q-8 9-52 4z" fill="#c22d29" stroke="#a6201d" stroke-width="2.5" stroke-linejoin="round"/><circle cy="-34" r="5" fill="#fff"/>`,
+    lana: () => `<path d="M-40 8Q-40-38 0-38Q40-38 40 8z" fill="#2fa4ff" stroke="#1769b8" stroke-width="2.5"/><path d="M-26-24v28M-13-32v36M0-35v39M13-32v36M26-24v28" stroke="#5fbcff" stroke-width="3"/><rect x="-44" y="-2" width="88" height="14" rx="7" fill="#fff" stroke="#c9d6e8" stroke-width="2"/><circle cy="-42" r="11" fill="#fff" stroke="#c9d6e8" stroke-width="2"/>`,
+    auriculares: () => `<path d="M-44 10Q-46-44 0-44Q46-44 44 10" fill="none" stroke="#2b2d42" stroke-width="7" stroke-linecap="round"/><rect x="-54" y="-4" width="18" height="30" rx="8" fill="#ff8a1f" stroke="#2b2d42" stroke-width="3"/><rect x="36" y="-4" width="18" height="30" rx="8" fill="#ff8a1f" stroke="#2b2d42" stroke-width="3"/>`,
+    vaquero: () => `<path d="M-62 2Q-52 18 0 16Q52 18 62 2Q50 8 30 6Q28-30 14-28Q0-22-14-28Q-28-30-30 6Q-50 8-62 2z" fill="#b5713a" stroke="#6d3f19" stroke-width="2.5" stroke-linejoin="round"/><path d="M-29 0Q0 8 29 0" stroke="#6d3f19" stroke-width="5" fill="none"/>`,
+    chistera: () => `<ellipse cx="0" cy="4" rx="48" ry="9" fill="#262840" stroke="#11121f" stroke-width="2"/><path d="M-28 4V-52Q0-58 28-52V4Q0 10-28 4z" fill="#33354f" stroke="#11121f" stroke-width="2.5"/><path d="M-28-6Q0 0 28-6V2Q0 8-28 2z" fill="#e8413c"/><path d="M-20-48v38" stroke="#fff" stroke-opacity=".18" stroke-width="5" stroke-linecap="round"/>`,
+    mago: () => `<path d="M-44 6Q-10-20 6-78Q14-40 44 6Q0 16-44 6z" fill="#4b3bd6" stroke="#2a1f8f" stroke-width="2.5" stroke-linejoin="round"/><polygon points="${star(2, -30, 8)}" fill="#ffd23a"/><polygon points="${star(-16, -6, 5)}" fill="#ffd23a"/><polygon points="${star(20, -8, 5)}" fill="#ffd23a"/><circle cx="6" cy="-78" r="6" fill="#ffd23a" stroke="#d98a00" stroke-width="2"/>`,
+    corona: () => `<path d="M-34 6L-38-30L-18-12L0-40L18-12L38-30L34 6z" fill="#ffc21a" stroke="#c98a00" stroke-width="3" stroke-linejoin="round"/><path d="M-34 6h68" stroke="#e8a400" stroke-width="5"/><circle cy="-14" r="5.5" fill="#e8413c" stroke="#a6201d" stroke-width="1.5"/><circle cx="-20" cy="-4" r="4" fill="#2f8cff"/><circle cx="20" cy="-4" r="4" fill="#2f8cff"/><circle cx="0" cy="-40" r="4" fill="#fff6c8"/>`
+  };
+  const CUBRE = ['gorra', 'lana', 'vaquero', 'chistera', 'mago', 'corona'];
+
+  /* ---------- Complementos ---------- */
+  const COMP = {
+    ninguno: () => '',
+    pajarita: (s, g) => { const y = Math.min(g.fy + 60, 176); return `<path d="M100 ${y}L76 ${y - 13}Q72 ${y} 76 ${y + 13}zM100 ${y}L124 ${y - 13}Q128 ${y} 124 ${y + 13}z" fill="#e8413c" stroke="#a6201d" stroke-width="2.5" stroke-linejoin="round"/><rect x="94" y="${y - 6}" width="12" height="12" rx="4" fill="#c22d29" stroke="#a6201d" stroke-width="2"/>`; },
+    gafas: (s, g) => { const y = g.fy; return `<g fill="#fff" fill-opacity=".18" stroke="#2b2d42" stroke-width="4"><circle cx="77" cy="${y}" r="19"/><circle cx="123" cy="${y}" r="19"/></g><path d="M96 ${y - 2}q4-5 8 0" stroke="#2b2d42" stroke-width="4" fill="none"/><path d="M58 ${y - 4}l-14-4M142 ${y - 4}l14-4" stroke="#2b2d42" stroke-width="4" stroke-linecap="round"/>`; },
+    sol: (s, g) => { const y = g.fy; return `<path d="M52 ${y - 13}h44l-3 16q-2 12-18 12h-4q-16 0-19-12zM104 ${y - 13}h44l-3 16q-2 12-18 12h-4q-16 0-19-12z" fill="#1d1f33" stroke="#0d0e1a" stroke-width="2.5" stroke-linejoin="round"/><path d="M96 ${y - 9}h8" stroke="#0d0e1a" stroke-width="4"/><path d="M60 ${y - 7}l12 0M112 ${y - 7}l12 0" stroke="#fff" stroke-opacity=".55" stroke-width="3" stroke-linecap="round"/>`; },
+    bufanda: (s, g) => { const y = Math.min(g.fy + 54, 170); return `<path d="M52 ${y - 4}Q100 ${y + 22} 148 ${y - 4}l-2 16Q100 ${y + 40} 54 ${y + 12}z" fill="#ffc21a" stroke="#c98a00" stroke-width="2.5" stroke-linejoin="round"/><path d="M68 ${y + 4}l-2 14M84 ${y + 10}l-1 14M100 ${y + 12}v14M116 ${y + 10}l1 14M132 ${y + 4}l2 14" stroke="#e8413c" stroke-width="5"/><path d="M122 ${y + 16}l6 30 16-3-4-29z" fill="#ffc21a" stroke="#c98a00" stroke-width="2.5" stroke-linejoin="round"/><path d="M126 ${y + 26}l15-3M128 ${y + 36}l14-3" stroke="#e8413c" stroke-width="4"/>`; },
+    collar: (s, g) => { const y = Math.min(g.fy + 54, 170); return `<path d="M64 ${y}Q100 ${y + 26} 136 ${y}" fill="none" stroke="#fff" stroke-opacity=".0"/>${[...Array(9)].map((_, i) => { const t = i / 8, x = 64 + 72 * t, yy = y + 26 * 2 * t * (1 - t) * 1.0; return `<circle cx="${f1(x)}" cy="${f1(yy + 2)}" r="${i === 4 ? 6.5 : 4.5}" fill="${i === 4 ? '#ff5fa2' : '#fff6fb'}" stroke="#c9a2b8" stroke-width="1.5"/>`; }).join('')}`; },
+    medalla: (s, g) => { const y = Math.min(g.fy + 56, 168); return `<path d="M84 ${y - 18}L96 ${y + 6}h8L116 ${y - 18}" fill="none" stroke="#2f8cff" stroke-width="7" stroke-linejoin="round"/><circle cx="100" cy="${y + 15}" r="12" fill="#ffc21a" stroke="#c98a00" stroke-width="3"/><polygon points="${star(100, y + 15.5, 6.5)}" fill="#fff3b0"/>`; },
+    capa: (s, g) => { const y = Math.min(g.fy + 52, 164); return `<path d="M62 ${y - 6}Q100 ${y + 8} 138 ${y - 6}" stroke="#e8413c" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="100" cy="${y + 1}" r="7" fill="#ffc21a" stroke="#c98a00" stroke-width="2.5"/>`; } // la tela va detrás
+  };
+  const capaTras = (s, g) => { const y = Math.min(g.fy + 52, 164); return `<path d="M60 ${y - 6}Q30 ${y + 10} 6 206Q30 196 46 206Q72 194 100 206Q128 194 154 206Q170 196 194 206Q170 ${y + 10} 140 ${y - 6}z" fill="#e8413c" stroke="#a6201d" stroke-width="3" stroke-linejoin="round"/><path d="M30 196Q40 ${y + 30} 62 ${y + 4}M170 196Q160 ${y + 30} 138 ${y + 4}" stroke="#c22d29" stroke-width="2.5" fill="none"/>`; };
+
+  /* ---------- Patrones (recortados al cuerpo, sin tapar la cara) ---------- */
+  function patron(tipo, s, g) {
+    if (tipo === 'ninguno') return '';
+    const r = rng(tipo.length * 977 + 13), out = [], face = (x, y) => ((x - 100) / 52) ** 2 + ((y - (g.fy + 18)) / 44) ** 2 < 1;
+    const c = s.claro ? mix(s.col, 0, .28) : mix(s.col, 255, .5), op = s.claro ? .45 : .6;
+    if (tipo === 'rayas') {
+      for (let y = g.t + 6; y < 200; y += 17) out.push(`<path d="M10 ${y}q45 -9 90 0t90 0" stroke="${c}" stroke-width="7" fill="none" stroke-linecap="round"/>`);
+      return `<g opacity="${op}" mask="url(#mk${s.u})">${out.join('')}</g>`;
+    }
+    if (tipo === 'escamas') {
+      for (let y = g.fy + 30; y < 200; y += 12) for (let x = 20 + ((y / 12) % 2) * 9; x < 190; x += 18) if (!face(x, y)) out.push(`<path d="M${x - 9} ${y}a9 9 0 0 0 18 0" stroke="${c}" stroke-width="2.5" fill="none"/>`);
+      return `<g opacity="${op + .1}">${out.join('')}</g>`;
+    }
+    for (let i = 0; i < 70 && out.length < 14; i++) {
+      const x = 22 + r() * 156, y = g.t + 8 + r() * (190 - g.t), sz = 5 + r() * 6;
+      if (face(x, y) || out.some(o => Math.hypot(o.x - x, o.y - y) < 22)) continue;
+      out.push({ x, y, sz, a: r() * 360 });
+    }
+    return `<g fill="${c}" opacity="${op}">${out.map(o => {
+      if (tipo === 'lunares') return `<circle cx="${f1(o.x)}" cy="${f1(o.y)}" r="${f1(o.sz * .9)}"/>`;
+      if (tipo === 'manchas') return `<ellipse cx="${f1(o.x)}" cy="${f1(o.y)}" rx="${f1(o.sz * 1.7)}" ry="${f1(o.sz * 1.1)}" transform="rotate(${f1(o.a)} ${f1(o.x)} ${f1(o.y)})"/>`;
+      if (tipo === 'estrellas') return `<polygon points="${star(o.x, o.y, o.sz * 1.15)}" transform="rotate(${f1(o.a / 6)} ${f1(o.x)} ${f1(o.y)})"/>`;
+      return `<path transform="translate(${f1(o.x)} ${f1(o.y)}) scale(${f1(o.sz * 2.1)}) rotate(${f1(o.a / 8 - 20)})" d="${HEART}"/>`;
+    }).join('')}</g>`;
+  }
+
+  /* ---------- Efectos ---------- */
+  const FX = {
+    ninguno: () => '',
+    brillos: () => [[26, 40, 7, 0], [176, 70, 9, .8], [18, 140, 6, 1.5], [184, 160, 7, .4], [150, 22, 6, 2]].map(([x, y, s, d]) => `<g class="fx-tw" style="animation-delay:${d}s"><path transform="translate(${x} ${y}) scale(${s})" d="${SPARK}" fill="#fff5b0" stroke="#ffd23a" stroke-width=".12"/></g>`).join(''),
+    burbujas: () => [[22, 170, 7, 0], [178, 180, 9, 1.2], [34, 120, 5, 2], [168, 110, 6, .6], [186, 60, 5, 1.8]].map(([x, y, r, d]) => `<g class="fx-up" style="animation-delay:${d}s"><circle cx="${x}" cy="${y}" r="${r * 1.4}" fill="#bfe9ff" fill-opacity=".45" stroke="#fff" stroke-width="2.2"/><circle cx="${x - r * .35}" cy="${y - r * .35}" r="${r * .25}" fill="#fff"/></g>`).join(''),
+    notas: () => [[24, 120, 0, '#ff5fa2'], [176, 100, 1.1, '#2f8cff'], [30, 60, 2.1, '#8e5cf2'], [170, 40, .5, '#ff8a1f']].map(([x, y, d, c]) => `<g class="fx-up" style="animation-delay:${d}s"><g transform="translate(${x} ${y}) scale(13)" fill="${c}"><ellipse cx="-.25" cy=".55" rx=".32" ry=".24" transform="rotate(-20 -.25 .55)"/><rect x="0" y="-.75" width=".13" height="1.3"/><path d="M.07-.75q.55.12.45.65q-.12-.35-.45-.32z"/></g></g>`).join(''),
+    corazones: () => [[24, 130, 0, 14], [178, 120, 1, 18], [36, 70, 2, 11], [166, 50, 1.6, 13]].map(([x, y, d, s]) => `<g class="fx-up" style="animation-delay:${d}s"><path transform="translate(${x} ${y}) scale(${s})" d="${HEART}" fill="#ff5f8f" stroke="#fff" stroke-width=".08"/></g>`).join(''),
+    aura: () => FX.brillos()
+  };
+
+  /* ---------- Mascotas (abajo a la derecha) ---------- */
+  const PET = {
+    ninguna: () => '',
+    pollito: () => `<ellipse cx="0" cy="17" rx="13" ry="3" fill="#0002"/><ellipse cx="0" cy="2" rx="15" ry="15" fill="#ffd93a" stroke="#d9a400" stroke-width="2"/><path d="M-2-13q-2-8 3-9q-1 5 3 7" fill="#ffd93a" stroke="#d9a400" stroke-width="2" stroke-linejoin="round"/><circle cx="-5" cy="-2" r="2.6" fill="${INK}"/><circle cx="6" cy="-2" r="2.6" fill="${INK}"/><path d="M-2 3h6l-3 4z" fill="#ff8a1f" stroke="#c45b00" stroke-width="1.2" stroke-linejoin="round"/><path d="M-15 4q-6-2-4 6M15 4q6-2 4 6" fill="#ffc21a" stroke="#d9a400" stroke-width="1.5"/>`,
+    estrellita: () => `<ellipse cx="0" cy="18" rx="12" ry="3" fill="#0002"/><polygon points="${star(0, 0, 18, 9)}" fill="#ffd23a" stroke="#d98a00" stroke-width="2.5" stroke-linejoin="round"/><circle cx="-4.5" cy="0" r="2.2" fill="${INK}"/><circle cx="4.5" cy="0" r="2.2" fill="${INK}"/><path d="M-3 4q3 3 6 0" stroke="${INK}" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="-8" cy="4" r="2" fill="#ff7a9a" opacity=".6"/><circle cx="8" cy="4" r="2" fill="#ff7a9a" opacity=".6"/>`,
+    fantasmin: () => `<ellipse cx="0" cy="20" rx="12" ry="3" fill="#0002"/><path d="M-14 14V-2a14 14 0 0 1 28 0V14l-5-4-4 4-5-4-5 4-4-4z" fill="#fff" stroke="#b9c3e6" stroke-width="2" stroke-linejoin="round"/><ellipse cx="-5" cy="-2" rx="2.4" ry="3.2" fill="${INK}"/><ellipse cx="5" cy="-2" rx="2.4" ry="3.2" fill="${INK}"/><ellipse cx="0" cy="5" rx="2.5" ry="3" fill="${INK}"/><circle cx="-9" cy="3" r="2.2" fill="#ffb3c8"/><circle cx="9" cy="3" r="2.2" fill="#ffb3c8"/>`,
+    pulpito: () => `<ellipse cx="0" cy="19" rx="15" ry="3" fill="#0002"/><path d="M-14 4q-6 10-1 14 3 0 4-6 0 8 5 8 4-1 2-8 2 9 6 8 4-1 1-9 3 7 7 6 4-3-3-13" fill="#ff7ab6" stroke="#d64a8c" stroke-width="2" stroke-linejoin="round"/><ellipse cx="0" cy="-3" rx="16" ry="14" fill="#ff7ab6" stroke="#d64a8c" stroke-width="2"/><circle cx="-5" cy="-2" r="2.8" fill="${INK}"/><circle cx="5" cy="-2" r="2.8" fill="${INK}"/><circle cx="-6" cy="-3" r="1" fill="#fff"/><circle cx="4" cy="-3" r="1" fill="#fff"/><path d="M-2 4q2 2 4 0" stroke="${INK}" stroke-width="1.5" fill="none"/><circle cx="-7" cy="-11" r="2.5" fill="#fff" opacity=".5"/>`,
+    blandi: () => `<ellipse cx="0" cy="17" rx="17" ry="3" fill="#0002"/><path d="M-18 16Q-20-16 0-17Q20-16 18 16Q0 20-18 16z" fill="#6fe07a" fill-opacity=".9" stroke="#2f9a3e" stroke-width="2"/><path d="M-10-10q4-4 9-3" stroke="#fff" stroke-width="3" opacity=".6" stroke-linecap="round" fill="none"/><circle cx="-6" cy="0" r="4" fill="#fff" stroke="${INK}" stroke-width="1.5"/><circle cx="6" cy="0" r="4" fill="#fff" stroke="${INK}" stroke-width="1.5"/><circle cx="-5.5" cy="1" r="2" fill="${INK}"/><circle cx="6.5" cy="1" r="2" fill="${INK}"/><path d="M-4 8q4 4 8 0" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
+  };
+
+  /* ---------- Fondos (escenas SVG, viewBox 0 0 200 250) ---------- */
+  const FONDO = {
+    aula: u => `<defs><linearGradient id="fa${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9c2"/><stop offset="1" stop-color="#ffd9a0"/></linearGradient></defs><rect width="200" height="250" fill="url(#fa${u})"/><rect x="18" y="34" width="164" height="96" rx="6" fill="#2f6b55" stroke="#a8743c" stroke-width="7"/><path d="M34 62q8-10 14 0t14 0M36 92h18M45 83v18M74 92h16M98 70l8 18 8-18M128 64h26M128 76h20M128 88h24" stroke="#e9fff4" stroke-opacity=".7" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="60" y="126" width="30" height="5" rx="2" fill="#fff"/><rect y="186" width="200" height="64" fill="#d99a5b"/><path d="M0 186h200" stroke="#b97a3f" stroke-width="4"/><path d="M0 210h200M0 234h200M40 186v24M120 186v24M80 210v24M160 210v24" stroke="#c4864a" stroke-width="2"/>`,
+    cielo: u => `<defs><linearGradient id="fa${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5db8ff"/><stop offset="1" stop-color="#d8f1ff"/></linearGradient></defs><rect width="200" height="250" fill="url(#fa${u})"/><g fill="#fff"><path d="M14 62a12 12 0 0 1 20-8 14 14 0 0 1 26 4 10 10 0 0 1 2 20H18a9 9 0 0 1-4-16z"/><path d="M128 36a10 10 0 0 1 17-6 12 12 0 0 1 22 3 8 8 0 0 1 2 16h-38a8 8 0 0 1-3-13z" opacity=".9"/><path d="M140 140a12 12 0 0 1 20-8 14 14 0 0 1 26 4 10 10 0 0 1 2 20h-44a9 9 0 0 1-4-16z" opacity=".8"/></g><ellipse cx="100" cy="232" rx="140" ry="36" fill="#fff" opacity=".9"/>`,
+    selva: u => `<defs><linearGradient id="fa${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bff27a"/><stop offset="1" stop-color="#4fbf5a"/></linearGradient></defs><rect width="200" height="250" fill="url(#fa${u})"/><g fill="#2f9a4a"><path d="M-10 20Q40 30 50 80Q20 70-10 90z"/><path d="M210 10Q150 30 150 90Q180 70 210 80z"/><path d="M-10 120Q30 120 40 160Q10 156-10 170z" fill="#36a852"/><path d="M210 130Q170 130 160 170Q190 166 210 176z" fill="#36a852"/></g><g stroke="#237a39" stroke-width="2" fill="none"><path d="M-6 50Q24 50 44 76M206 40Q170 50 154 84"/></g><path d="M60 0q-4 40 4 70M140 0q4 30-2 58" stroke="#5a8f2a" stroke-width="3" fill="none"/><circle cx="64" cy="70" r="4" fill="#ff5fa2"/><circle cx="138" cy="58" r="4" fill="#ffc21a"/><rect y="192" width="200" height="58" fill="#3f9a3c"/><path d="M0 192q20-10 40 0t40 0 40 0 40 0 40 0" fill="#4fb84a"/>`,
+    playa: u => `<defs><linearGradient id="fa${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd4ff"/><stop offset=".6" stop-color="#c9f0ff"/></linearGradient></defs><rect width="200" height="250" fill="url(#fa${u})"/><circle cx="160" cy="44" r="20" fill="#ffd23a"/><circle cx="160" cy="44" r="28" fill="#ffd23a" opacity=".25"/><rect y="130" width="200" height="60" fill="#2aa6e8"/><path d="M0 138q12-5 25 0t25 0 25 0 25 0 25 0 25 0 25 0 25 0" stroke="#fff" stroke-opacity=".6" stroke-width="3" fill="none"/><path d="M0 182Q50 170 100 178T200 174V250H0z" fill="#ffe0a3"/><path d="M0 182Q50 170 100 178T200 174" stroke="#fff" stroke-width="4" fill="none" opacity=".8"/><circle cx="30" cy="214" r="3" fill="#ff8fb3"/><path d="M170 220l5-8 5 8z" fill="#ff8a1f"/>`,
+    atardecer: u => `<defs><linearGradient id="fa${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a4fd0"/><stop offset=".55" stop-color="#ff8f6b"/><stop offset="1" stop-color="#ffd59a"/></linearGradient></defs><rect width="200" height="250" fill="url(#fa${u})"/><circle cx="100" cy="150" r="42" fill="#ffd36b" opacity=".9"/><circle cx="100" cy="150" r="58" fill="#ffd36b" opacity=".2"/><path d="M0 170Q50 140 100 168T200 156V250H0z" fill="#8a4ea8"/><path d="M0 196Q60 176 120 194T200 190V250H0z" fill="#5e3488"/><g fill="#fff"><circle cx="30" cy="30" r="1.5"/><circle cx="70" cy="18" r="1.2"/><circle cx="160" cy="26" r="1.5"/></g>`,
+    nieve: u => `<defs><linearGradient id="fa${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fc8ff"/><stop offset="1" stop-color="#eaf4ff"/></linearGradient></defs><rect width="200" height="250" fill="url(#fa${u})"/><path d="M-10 150L40 90L80 150zM60 150L120 70L180 150zM140 150L190 100L230 150z" fill="#c8dcf7"/><path d="M40 90L30 102l10 4 8-4zM120 70l-12 16 12 4 12-4zM190 100l-9 11 9 3 8-3z" fill="#fff"/><path d="M0 178Q60 150 120 172T200 164V250H0z" fill="#fff"/>${[[20, 40], [60, 60], [100, 24], [150, 50], [180, 20], [30, 110], [170, 120], [90, 120]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.5" fill="#fff"/>`).join('')}`,
+    mar: u => `<defs><linearGradient id="fa${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2fb4e8"/><stop offset="1" stop-color="#11407e"/></linearGradient></defs><rect width="200" height="250" fill="url(#fa${u})"/><path d="M40 0L20 160H50L70 0zM120 0L110 160H140L150 0z" fill="#fff" opacity=".07"/><path d="M0 200Q50 186 100 198T200 192V250H0z" fill="#f2d39b"/><g fill="none" stroke-linecap="round" stroke-width="7"><path d="M20 210q-10-30 4-50t-2-40" stroke="#2fb35a"/><path d="M184 214q10-26-4-46t4-36" stroke="#3fc46a"/></g><g fill="#fff" opacity=".5"><circle cx="40" cy="60" r="4"/><circle cx="46" cy="44" r="2.5"/><circle cx="160" cy="80" r="5"/><circle cx="154" cy="62" r="3"/></g><path d="M150 218l8-6 8 6-3 2-5-3-5 3z" fill="#ff8a6b"/>`,
+    espacio: u => `<defs><radialGradient id="fa${u}" cx=".5" cy=".3" r=".9"><stop offset="0" stop-color="#4b2a8a"/><stop offset="1" stop-color="#120a33"/></radialGradient></defs><rect width="200" height="250" fill="url(#fa${u})"/>${(() => { const r = rng(42); let s = ''; for (let i = 0; i < 40; i++) s += `<circle cx="${f1(r() * 200)}" cy="${f1(r() * 180)}" r="${f1(.6 + r() * 1.4)}" fill="#fff" opacity="${f1(.4 + r() * .6)}"/>`; return s; })()}<circle cx="160" cy="46" r="20" fill="#ff8a6b"/><ellipse cx="160" cy="48" rx="34" ry="8" fill="none" stroke="#ffd23a" stroke-width="3" transform="rotate(-18 160 48)"/><circle cx="34" cy="80" r="8" fill="#7fd4ff" opacity=".8"/><path d="M0 200Q100 176 200 200V250H0z" fill="#8a8fb8"/><ellipse cx="50" cy="214" rx="12" ry="4" fill="#6a6f98"/><ellipse cx="150" cy="222" rx="16" ry="5" fill="#6a6f98"/>`,
+    arcoiris: u => `<defs><linearGradient id="fa${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd6f0"/><stop offset="1" stop-color="#d6f0ff"/></linearGradient></defs><rect width="200" height="250" fill="url(#fa${u})"/><g fill="none" stroke-width="10">${['#ff5f6b', '#ff9f43', '#ffd23a', '#5bd36b', '#2f8cff', '#8e5cf2'].map((c, i) => `<path d="M${-10 + i * 10} 190A${110 - i * 10} ${110 - i * 10} 0 0 1 ${210 - i * 10} 190" stroke="${c}"/>`).join('')}</g><g fill="#fff"><ellipse cx="10" cy="190" rx="30" ry="16"/><ellipse cx="190" cy="190" rx="30" ry="16"/></g><path d="M0 196Q100 182 200 196V250H0z" fill="#b7f0c4"/>`
+  };
+
+  /* ---------- Rellenos especiales ---------- */
+  function relleno(s) {
+    const u = s.u;
+    if (s.id === 'arcoiris') return `<linearGradient id="g${u}" x1="0" y1="0" x2=".3" y2="1">${['#ff5f6b', '#ff9f43', '#ffd23a', '#5bd36b', '#2fb4ff', '#8e5cf2'].map((c, i) => `<stop offset="${i / 5}" stop-color="${c}"/>`).join('')}</linearGradient>`;
+    if (s.id === 'galaxia') return `<radialGradient id="g${u}" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#8a5cf2"/><stop offset=".55" stop-color="#3b2690"/><stop offset="1" stop-color="#1a1150"/></radialGradient>`;
+    if (s.id === 'oro') return `<linearGradient id="g${u}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2a8"/><stop offset=".35" stop-color="#ffcc33"/><stop offset=".6" stop-color="#e09a12"/><stop offset=".8" stop-color="#ffd85a"/><stop offset="1" stop-color="#b8770a"/></linearGradient>`;
+    return `<radialGradient id="g${u}" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="${s.lt}"/><stop offset=".55" stop-color="${s.col}"/><stop offset="1" stop-color="${s.dk}"/></radialGradient>`;
+  }
+
+  let seq = 0;
+  /* cfg: configuración; opts: {anim:true|false} */
+  function svg(cfg, opts = {}) {
+    const c = Object.assign({}, BASE, cfg || {});
+    ORDEN.forEach(k => { if (!item(k, c[k])) c[k] = BASE[k]; });
+    const u = 'm' + (++seq), g = SH[c.forma], col = COL[c.color];
+    const s = { u, id: c.color, col, lt: mix(col, 255, .45), dk: mix(col, 0, .28), claro: lum(col) > .66 };
+    if (c.color === 'oro') { s.dk = '#c98a10'; s.claro = true; }
+    if (c.color === 'arcoiris') s.dk = '#d9506a';
+    const line = mix(col, 0, .42), f = g.fy, [n, st] = EYES[c.ojos];
+    const P = n === 1 ? [[100, f, c.ojos === 'ciclope' ? 24 : 19]] : n === 2 ? [[77, f, 14.5], [123, f, 14.5]] : [[71, f + 5, 12], [129, f + 5, 12], [100, f - 15, 12]];
+    const sc = Math.max(.72, Math.min(1.15, g.hw / 40));
+    const ocultaCentro = CUBRE.includes(c.sombrero) && CENTRO.includes(c.cabeza);
+    const head = ocultaCentro ? '' : HEAD[c.cabeza](s, g), delante = DELANTE.includes(c.cabeza);
+    const hat = HAT[c.sombrero]();
+    const galaxia = c.color === 'galaxia' ? (() => { const r = rng(7); let o = ''; for (let i = 0; i < 26; i++) o += `<circle cx="${f1(25 + r() * 150)}" cy="${f1(g.t + r() * (190 - g.t))}" r="${f1(.6 + r() * 1.6)}" fill="#fff" opacity="${f1(.5 + r() * .5)}"/>`; return o; })() : '';
+    const aura = c.efecto === 'aura' ? `<ellipse class="fx-pulse" cx="100" cy="${(g.t + 190) / 2}" rx="98" ry="${(190 - g.t) / 2 + 30}" fill="url(#au${u})"/>` : '';
+    const pet = PET[c.mascota]();
+    return `<svg viewBox="${opts.vb || '0 -34 200 250'}" class="mon${opts.anim === false ? ' quieto' : ''}${opts.vb ? ' zoom' : ''}" aria-hidden="true" focusable="false"><defs>${relleno(s)}<radialGradient id="au${u}"><stop offset=".45" stop-color="#ffe066" stop-opacity=".75"/><stop offset="1" stop-color="#ffe066" stop-opacity="0"/></radialGradient><mask id="mk${u}"><rect x="0" y="-40" width="200" height="260" fill="#fff"/><ellipse cx="100" cy="${f + 18}" rx="56" ry="47" fill="#000"/></mask><clipPath id="c${u}"><path d="${g.p}"/></clipPath></defs>
+<g class="cuerpo">${aura}<ellipse cx="100" cy="196" rx="62" ry="8" fill="#000" opacity=".16"/>
+${c.comp === 'capa' ? capaTras(s, g) : ''}${delante ? '' : head}
+<g fill="${s.dk}" stroke="${line}" stroke-width="2"><ellipse cx="${g.ax}" cy="${f + 36}" rx="15" ry="10" transform="rotate(-32 ${g.ax} ${f + 36})"/><g class="brazo-d"><ellipse cx="${200 - g.ax}" cy="${f + 36}" rx="15" ry="10" transform="rotate(32 ${200 - g.ax} ${f + 36})"/></g><ellipse cx="76" cy="190" rx="20" ry="10.5"/><ellipse cx="124" cy="190" rx="20" ry="10.5"/></g>
+<path d="${g.p}" fill="url(#g${u})" stroke="${line}" stroke-width="2.5"/>
+<g clip-path="url(#c${u})">${galaxia}${c.color === 'arcoiris' ? `<ellipse cx="80" cy="${f}" rx="80" ry="70" fill="#fff" opacity=".22"/>` : ''}<ellipse cx="100" cy="${f + 62}" rx="42" ry="34" fill="${s.claro ? '#fff' : s.lt}" opacity="${s.claro ? .35 : .5}"/>${patron(c.patron, s, g)}<ellipse cx="70" cy="${g.t + 24}" rx="22" ry="10" fill="#fff" opacity=".35" transform="rotate(-25 70 ${g.t + 24})"/></g>
+${delante ? head : ''}<circle cx="56" cy="${f + 21}" r="9.5" fill="#ff6f96" opacity=".38"/><circle cx="144" cy="${f + 21}" r="9.5" fill="#ff6f96" opacity=".38"/>
+${P.map(p => eye(p[0], p[1], p[2], st, col)).join('')}${MOUTH[c.boca](f + 36)}${COMP[c.comp](s, g)}
+${hat ? `<g transform="translate(100 ${g.hy}) scale(${f1(sc)})">${hat}</g>` : ''}</g>
+${FX[c.efecto]()}${pet ? `<g transform="translate(172 184) scale(1.25)"><g class="pet">${pet}</g></g>` : ''}</svg>`;
+  }
+  function fondo(id, cls = '') {
+    const fn = FONDO[id] || FONDO.aula;
+    return `<svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice" class="fondo ${cls}" aria-hidden="true" focusable="false">${fn('f' + (++seq))}</svg>`;
+  }
+  // Encuadre para miniaturas: acerca la cámara a la zona de la pieza
+  function encuadre(cfg, cat) {
+    const g = SH[(cfg && cfg.forma) || 'blob'] || SH.blob, fy = g.fy;
+    if (cat === 'ojos' || cat === 'boca') return `22 ${fy - 52} 156 156`;
+    if (cat === 'comp') return `14 ${fy - 40} 172 172`;
+    if (cat === 'sombrero' || cat === 'cabeza') return `10 -38 180 180`;
+    if (cat === 'mascota') return `92 104 116 116`;
+    return '';
+  }
+  // Monstruo inicial al azar (solo piezas gratis)
+  function aleatorio() {
+    const c = { ...BASE }; const libres = CAT.color.i.filter(i => i[2] === 0).map(i => i[0]);
+    c.color = libres[Math.floor(Math.random() * libres.length)]; return c;
+  }
+  const NOMBRES = ['Zippo', 'Bubu', 'Pompón', 'Tiko', 'Lulo', 'Mochi', 'Pipo', 'Chispa', 'Gominola', 'Kiwi', 'Nube', 'Trufa', 'Bombón', 'Rayo', 'Coco', 'Fideo', 'Pistacho', 'Canela', 'Gusi', 'Momo', 'Brócoli', 'Panchi', 'Tofu', 'Burbuja', 'Peca', 'Yoyo', 'Choco', 'Pimienta', 'Mango', 'Ñoqui'];
+  const nombreAzar = () => NOMBRES[Math.floor(Math.random() * NOMBRES.length)];
+
+  return { CAT, ORDEN, BASE, NIVELES, nivel, infoNivel, mapas, item, svg, fondo, aleatorio, nombreAzar, encuadre, star, HEART };
+})();
+
+/* ===== Utilidades de interfaz comunes ===== */
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const html = (el, h) => { el.innerHTML = h; return el; };
+const corto = n => { const p = String(n || '').trim().split(/\s+/); return p.length > 1 ? p[0] + ' ' + p[1][0] + '.' : p[0] || ''; };
+const pila = (n, s = 'punto', p = 'puntos') => `${n} ${Math.abs(n) === 1 ? s : p}`;
+function haceCuanto(t) {
+  const d = (Date.now() - t) / 1000;
+  if (d < 60) return 'ahora mismo'; if (d < 3600) return `hace ${Math.floor(d / 60)} min`; if (d < 86400) return `hace ${Math.floor(d / 3600)} h`;
+  const f = new Date(t), hoy = new Date(); const dias = Math.round((new Date(hoy.toDateString()) - new Date(f.toDateString())) / 864e5);
+  if (dias === 1) return 'ayer'; if (dias < 7) return f.toLocaleDateString('es-ES', { weekday: 'long' });
+  return f.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+}
+const hoyISO = () => new Date().toLocaleDateString('sv-SE');
+
+/* ---------- Navegación con el botón Atrás (migas de pan) ---------- */
+const Nav = (() => {
+  const capas = [], esperas = [];
+  function abrir(cerrar) { capas.push(cerrar); history.pushState({ capa: capas.length }, ''); }
+  function reemplazar(cerrar) { if (capas.length) capas[capas.length - 1] = cerrar; else abrir(cerrar); }
+  function atras() { return new Promise(r => { if (!capas.length) return r(); esperas.push(r); history.back(); }); }
+  addEventListener('popstate', () => { const f = capas.pop(); try { f && f(); } catch (e) { console.error(e); } const r = esperas.shift(); r && r(); });
+  async function hastaInicio() { while (capas.length) await atras(); }
+  return { abrir, reemplazar, atras, hastaInicio, get nivel() { return capas.length; } };
+})();
+
+/* ---------- Avisos (toast) ---------- */
+function toast(msg, o = {}) {
+  let zona = $('#toasts'); if (!zona) { zona = document.createElement('div'); zona.id = 'toasts'; zona.setAttribute('role', 'status'); zona.setAttribute('aria-live', 'polite'); document.body.append(zona); }
+  const t = document.createElement('div'); t.className = 'toast ' + (o.tipo || '');
+  t.innerHTML = `<span>${o.ic ? `<b class="t-ic">${o.ic}</b>` : ''}${esc(msg)}</span>${o.accion ? `<button type="button">${esc(o.accion.t)}</button>` : ''}`;
+  if (o.accion) t.querySelector('button').onclick = () => { o.accion.fn(); quitar(); };
+  zona.append(t); requestAnimationFrame(() => t.classList.add('on'));
+  const quitar = () => { t.classList.remove('on'); setTimeout(() => t.remove(), 300); };
+  setTimeout(quitar, o.ms || (o.accion ? 6000 : 2600));
+  while (zona.children.length > 3) zona.firstChild.remove();
+}
+
+/* ---------- Ventanas (modales) integradas ---------- */
+function modal(o) {
+  return new Promise(resolve => {
+    let valor = null, cerrado = false;
+    const fondo = document.createElement('div'); fondo.className = 'velo';
+    const caja = document.createElement('div'); caja.className = 'modal ' + (o.clase || ''); caja.setAttribute('role', 'dialog'); caja.setAttribute('aria-modal', 'true');
+    caja.innerHTML = `${o.titulo !== undefined ? `<header class="m-cab"><h2>${o.titulo}</h2><button type="button" class="m-x" aria-label="Cerrar">✕</button></header>` : ''}<div class="m-cuerpo"></div>${o.botones ? '<footer class="m-pie"></footer>' : ''}`;
+    const cuerpo = caja.querySelector('.m-cuerpo');
+    if (typeof o.cuerpo === 'string') cuerpo.innerHTML = o.cuerpo; else if (o.cuerpo) cuerpo.append(o.cuerpo);
+    fondo.append(caja); document.body.append(fondo);
+    const previo = document.activeElement;
+    requestAnimationFrame(() => fondo.classList.add('on'));
+    const quitarDOM = () => { if (cerrado) return; cerrado = true; fondo.classList.remove('on'); setTimeout(() => fondo.remove(), 220); o.alCerrar && o.alCerrar(); try { previo && previo.focus && previo.focus({ preventScroll: true }); } catch (e) { } resolve(valor); };
+    Nav.abrir(quitarDOM);
+    const cerrar = v => { valor = v === undefined ? null : v; return Nav.atras(); };
+    fondo.addEventListener('pointerdown', e => { if (e.target === fondo && !o.fijo) cerrar(null); });
+    caja.querySelector('.m-x')?.addEventListener('click', () => cerrar(null));
+    caja.addEventListener('keydown', e => { if (e.key === 'Escape' && !o.fijo) { e.stopPropagation(); cerrar(null); } });
+    (o.botones || []).forEach(b => {
+      const el = document.createElement('button'); el.type = 'button'; el.className = 'btn ' + (b.cls || ''); el.innerHTML = b.t;
+      el.onclick = async () => { if (b.fn) { el.disabled = true; let r; try { r = await b.fn(caja, cerrar); } finally { el.disabled = false; } if (r === false) return; } cerrar(b.valor !== undefined ? b.valor : true); };
+      caja.querySelector('.m-pie').append(el);
+    });
+    o.alAbrir && o.alAbrir(caja, cerrar);
+    setTimeout(() => { const f = caja.querySelector('[autofocus]') || caja.querySelector('.m-pie .btn:last-child') || caja.querySelector('button'); f && f.focus({ preventScroll: true }); }, 60);
+  });
+}
+const confirmar = (texto, o = {}) => modal({ titulo: o.titulo || '¿Seguro?', clase: 'pequeña', cuerpo: `<p class="m-texto">${texto}</p>`, botones: [{ t: o.no || 'Cancelar', cls: 'sec', valor: false }, { t: o.si || 'Aceptar', cls: o.peligro ? 'peligro' : 'pri', valor: true }] }).then(v => !!v);
+const avisar = (texto, titulo = 'Aviso') => modal({ titulo, clase: 'pequeña', cuerpo: `<p class="m-texto">${texto}</p>`, botones: [{ t: 'Entendido', cls: 'pri' }] });
+function pedir(titulo, o = {}) {
+  let val = null;
+  return modal({
+    titulo, clase: 'pequeña', cuerpo: `${o.texto ? `<p class="m-texto">${o.texto}</p>` : ''}<label class="campo"><span>${esc(o.etiqueta || '')}</span><input id="m-valor" ${o.tipo ? `type="${o.tipo}"` : ''} maxlength="${o.max || 60}" value="${esc(o.valor || '')}" autofocus autocomplete="off"></label>`,
+    alAbrir: (c, cerrar) => { const i = c.querySelector('#m-valor'); i.select(); i.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); c.querySelector('.m-pie .pri').click(); } }); },
+    botones: [{ t: 'Cancelar', cls: 'sec', valor: false }, { t: o.ok || 'Guardar', cls: 'pri', fn: (c) => { const v = c.querySelector('#m-valor').value.trim(); if (o.validar) { const err = o.validar(v); if (err) { toast(err, { tipo: 'error' }); return false; } } val = v; } }]
+  }).then(v => v === true ? val : null);
+}
+
+/* ---------- Sonidos sintetizados (sin archivos) ---------- */
+const Sonido = (() => {
+  let ctx, on = localStorage.getItem('aulasiurot_sonido') !== '0';
+  const c = () => { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); return ctx; };
+  function nota(f, dur, t0 = 0, tipo = 'sine', vol = .16, f2) {
+    const a = c(), o = a.createOscillator(), g = a.createGain(), t = a.currentTime + t0;
+    o.type = tipo; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .012); g.gain.exponentialRampToValueAtTime(.0008, t + dur);
+    o.connect(g).connect(a.destination); o.start(t); o.stop(t + dur + .05);
+  }
+  const S = {
+    pos: () => { nota(784, .14, 0, 'triangle'); nota(1047, .14, .08, 'triangle'); nota(1568, .32, .16, 'sine', .12); },
+    neg: () => { nota(392, .22, 0, 'triangle', .14, 330); nota(294, .35, .16, 'triangle', .12, 247); },
+    compra: () => { [1319, 1568, 2093, 2637].forEach((f, i) => nota(f, .18, i * .06, 'square', .05)); nota(2093, .5, .26, 'sine', .08); },
+    nivel: () => { [523, 659, 784, 1047, 784, 1047].forEach((f, i) => nota(f, i === 5 ? .7 : .16, i * .11, 'triangle', .14)); },
+    tic: () => nota(1200, .05, 0, 'square', .04),
+    pop: () => nota(520, .12, 0, 'sine', .14, 980),
+    fin: () => { for (let i = 0; i < 3; i++) { nota(880, .18, i * .5, 'square', .08); nota(1175, .3, i * .5 + .18, 'square', .08); } },
+    tambor: () => nota(140, .08, 0, 'triangle', .12, 90),
+    tada: () => { nota(523, .12, 0, 'triangle'); nota(659, .12, .1, 'triangle'); nota(784, .12, .2, 'triangle'); nota(1047, .6, .3, 'triangle', .18); nota(1319, .6, .3, 'sine', .08); }
+  };
+  return { tocar(n) { if (!on) return; try { S[n] && S[n](); } catch (e) { } }, get on() { return on; }, set on(v) { on = v; localStorage.setItem('aulasiurot_sonido', v ? '1' : '0'); } };
+})();
+
+/* ---------- Confeti ---------- */
+function confeti(n = 120, origen) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv = document.createElement('canvas'); cv.className = 'confeti'; document.body.append(cv);
+  const W = cv.width = innerWidth * devicePixelRatio, H = cv.height = innerHeight * devicePixelRatio, x = cv.getContext('2d');
+  const cols = ['#ff8a1f', '#ffc21a', '#2f8cff', '#ff5fa2', '#5bc236', '#8e5cf2', '#17bfae'];
+  const ox = origen ? origen.x * devicePixelRatio : W / 2, oy = origen ? origen.y * devicePixelRatio : H * .35;
+  const P = [...Array(n)].map(() => ({ x: ox, y: oy, vx: (Math.random() - .5) * 26 * devicePixelRatio, vy: (-Math.random() * 22 - 6) * devicePixelRatio, r: Math.random() * 6 + 4, c: cols[Math.floor(Math.random() * cols.length)], a: Math.random() * 6, va: (Math.random() - .5) * .4, f: Math.random() < .3 }));
+  let fr = 0; (function paso() {
+    x.clearRect(0, 0, W, H); fr++;
+    P.forEach(p => { p.vy += .7 * devicePixelRatio; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.a += p.va; x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.fillStyle = p.c; if (p.f) { x.beginPath(); x.arc(0, 0, p.r * devicePixelRatio * .6, 0, 7); x.fill(); } else x.fillRect(-p.r * devicePixelRatio / 2, -p.r * devicePixelRatio / 4, p.r * devicePixelRatio, p.r * devicePixelRatio / 2); x.restore(); });
+    if (fr < 150) requestAnimationFrame(paso); else cv.remove();
+  })();
+}
+
+/* ---------- Animar un monstruo ---------- */
+function animar(el, clase = 'salta') { const m = el && (el.matches?.('.mon') ? el : el.querySelector('.mon')); if (!m) return; m.classList.remove('salta', 'saluda', 'triste'); void m.getBoundingClientRect(); m.classList.add(clase); setTimeout(() => m.classList.remove(clase), 1600); }
+function burbuja(el, texto, tipo = 'pos') {
+  if (!el) return; const r = el.getBoundingClientRect(), b = document.createElement('div');
+  b.className = 'burbuja-pts ' + tipo; b.textContent = texto; b.style.left = (r.left + r.width / 2) + 'px'; b.style.top = (r.top + r.height * .3) + 'px';
+  document.body.append(b); setTimeout(() => b.remove(), 1300);
+}
+const escena = (cfg, o = {}) => `<div class="escena${o.cls ? ' ' + o.cls : ''}">${Mon.fondo(cfg?.fondo || 'aula')}${Mon.svg(cfg, o)}</div>`;
+
+/* ---------- Errores legibles ---------- */
+function textoError(e) {
+  const c = e && e.code || '';
+  const M = { 'auth/invalid-credential': 'Usuario o clave incorrectos.', 'auth/wrong-password': 'Usuario o clave incorrectos.', 'auth/user-not-found': 'Usuario o clave incorrectos.', 'auth/invalid-email': 'Ese usuario no es válido.', 'auth/too-many-requests': 'Demasiados intentos. Espera un momento y vuelve a probar.', 'auth/network-request-failed': 'Sin conexión a internet. Revisa la red.', 'auth/popup-closed-by-user': 'Has cerrado la ventana de Google antes de terminar.', 'auth/unauthorized-domain': 'Este dominio no está autorizado en Firebase (Authentication → Configuración → Dominios autorizados).', 'permission-denied': 'No tienes permiso para hacer esto.', 'unavailable': 'Sin conexión con el servidor. Se reintentará al volver la red.' };
+  return M[c] || (e && e.message) || 'Algo ha fallado.';
+}
+
+/* ===== Capa de datos: Firebase o modo demostración ===== */
+const FB_VER = '12.6.0';
+const ahora = () => Date.now();
+const limpiaUsuario = u => (u || '').toString().trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9._-]/g, '');
+const nuevoAlumnoDoc = (a, clase) => ({ usuario: a.usuario, clave: a.clave, nombre: a.nombre, clase, pts: 0, total: 0, neg: 0, cfg: Mon.aleatorio(), own: [], alias: Mon.nombreAzar(), ult: [], cnt: {}, creado: ahora() });
+// Entrada del historial corto que ve el alumno
+const entradaUlt = m => ({ id: m.id, t: m.t, n: m.n, ic: m.ic, v: m.v, tipo: m.tipo });
+const ULT_MAX = 25;
+
+/* ---------- Modo demostración (localStorage) ---------- */
+function crearDemo() {
+  const KEY = 'aulasiurot_demo_v1';
+  const subs = new Set();
+  let D;
+  const uid = () => Math.random().toString(36).slice(2, 11);
+  function semilla() {
+    const { precios, req } = Mon.mapas();
+    const d = { sistema: { admin: 'demo-admin', precios, req, centro: 'CEIP Manuel Siurot' }, maestros: {}, clases: {}, alumnos: {} };
+    d.maestros['demo-admin'] = { nombre: 'Manuel (demo)', email: 'admin@demo', estado: 'activo', rol: 'admin', clases: ['demoA', 'demoB'], creado: ahora() };
+    d.maestros['demo-pend'] = { nombre: 'Lucía Pérez', email: 'lucia@demo', estado: 'pendiente', rol: 'maestro', clases: [], creado: ahora() - 3600e3 };
+    const nombresA = ['Ana García', 'Bruno López', 'Carmen Ruiz', 'David Moreno', 'Elena Díaz', 'Fátima Ali', 'Gonzalo Pérez', 'Hugo Sánchez', 'Irene Gómez', 'Jorge Martín', 'Lola Romero', 'Mario Navarro', 'Nora Torres', 'Óscar Gil'];
+    const nombresB = ['Paula Vega', 'Raúl Castro', 'Sara Ortiz', 'Tomás León', 'Valeria Ramos', 'Yassin Amrani', 'Zoe Molina', 'Pablo Rubio'];
+    const clase = (id, nombre, lista) => {
+      d.clases[id] = { nombre, habilidades: HAB_DEF.map(h => ({ ...h })), recompensas: REC_DEF.map(r => ({ ...r })), meta: { n: 'Película en clase', obj: 400, prog: 0, ic: '🎬' }, restar: true, ausentes: { f: '', ids: [] }, grupos: [], creado: ahora(), movs: [] };
+      lista.forEach((n, i) => {
+        const u = 'demo-' + id + '-' + i, us = limpiaUsuario(n.split(' ')[0] + n.split(' ')[1][0]);
+        const a = nuevoAlumnoDoc({ usuario: us, clave: '123abc', nombre: n }, id);
+        d.alumnos[u] = a;
+      });
+      // historial de ejemplo de las últimas 3 semanas
+      const ids = Object.keys(d.alumnos).filter(k => d.alumnos[k].clase === id), habs = d.clases[id].habilidades;
+      for (let i = 0; i < ids.length * 24; i++) {
+        const al = ids[Math.floor(Math.random() * ids.length)], h = Math.random() < .82 ? habs.filter(x => x.v > 0)[Math.floor(Math.random() * 6)] : habs.filter(x => x.v < 0)[Math.floor(Math.random() * 3)];
+        const t = ahora() - Math.floor(Math.random() * 28 * 864e5);
+        aplicaMov(d, id, al, { id: uid(), t, alumno: al, h: h.id, n: h.n, ic: h.ic, v: h.v, tipo: 'punto', maestro: 'demo-admin', mn: 'Manuel (demo)' });
+      }
+      d.clases[id].movs.sort((a, b) => b.t - a.t);
+      ids.forEach(k => d.alumnos[k].ult.sort((a, b) => b.t - a.t));
+    };
+    clase('demoA', '4ºA (demo)', nombresA); clase('demoB', '4ºB (demo)', nombresB);
+    // algunos monstruos ya decorados
+    const deco = [{ forma: 'alto', sombrero: 'gorra', color: 'naranja' }, { ojos: 'brillantes', cabeza: 'conejo', color: 'rosa' }, { forma: 'cuadrado', comp: 'gafas', color: 'turquesa' }, { cabeza: 'cuernos', boca: 'colmillos', color: 'coral', fondo: 'espacio' }, { forma: 'gota', sombrero: 'lana', color: 'azul', fondo: 'nieve' }, { patron: 'lunares', comp: 'pajarita', fondo: 'playa' }, { forma: 'peludo', color: 'amarillo', ojos: 'felices', mascota: 'pollito' }, { sombrero: 'mago', efecto: 'brillos', color: 'violeta', fondo: 'atardecer' }];
+    Object.keys(d.alumnos).slice(0, 8).forEach((k, i) => { const a = d.alumnos[k]; Object.assign(a.cfg, deco[i]); Object.entries(deco[i]).forEach(([c, v]) => { if ((precios[c + ':' + v] || 0) > 0) a.own.push(c + ':' + v); }); });
+    return d;
+  }
+  function aplicaMov(d, claseId, al, m) {
+    const a = d.alumnos[al], c = d.clases[claseId];
+    if (m.tipo === 'canje') a.pts -= m.coste;
+    else { if (m.v > 0 || c.restar) a.pts += m.v; if (m.v > 0) { a.total += m.v; if (c.meta) c.meta.prog += m.v; } else a.neg += -m.v; a.cnt = a.cnt || {}; a.cnt[m.h] = (a.cnt[m.h] || 0) + 1; }
+    c.movs.unshift(m); a.ult.unshift(entradaUlt(m)); a.ult = a.ult.slice(0, ULT_MAX);
+  }
+  const cargar = () => { try { D = JSON.parse(localStorage.getItem(KEY)); } catch (e) { } if (!D || !D.sistema) { D = semilla(); guardar(false); } };
+  const guardar = (avisar = true) => { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) { } if (avisar) subs.forEach(f => f()); };
+  window.addEventListener('storage', e => { if (e.key === KEY) { cargar(); subs.forEach(f => f()); } });
+  const sub = (fn) => { const f = () => { try { fn(); } catch (e) { console.error(e); } }; subs.add(f); setTimeout(f, 0); return () => subs.delete(f); };
+  const copia = o => JSON.parse(JSON.stringify(o));
+  const SES = 'aulasiurot_demo_sesion_' + (document.body.dataset.app || 'x');
+  let authCb = null;
+  const usuarioSesion = () => { try { return JSON.parse(sessionStorage.getItem(SES)); } catch (e) { return null; } };
+  const espera = ms => new Promise(r => setTimeout(r, ms));
+
+  return {
+    modo: 'demo',
+    async iniciar() { cargar(); },
+    reiniciarDemo() { localStorage.removeItem(KEY); cargar(); subs.forEach(f => f()); },
+    onAuth(cb) { authCb = cb; setTimeout(() => cb(usuarioSesion()), 0); },
+    async entrarGoogle() { const u = { uid: 'demo-admin', email: 'admin@demo', nombre: 'Manuel (demo)', foto: '' }; sessionStorage.setItem(SES, JSON.stringify(u)); authCb && authCb(u); },
+    async entrarAlumno(usuario, clave) {
+      await espera(250); usuario = limpiaUsuario(usuario);
+      const k = Object.keys(D.alumnos).find(k => D.alumnos[k].usuario === usuario);
+      if (!k || D.alumnos[k].clave !== clave.trim()) { const e = new Error('cred'); e.code = 'auth/invalid-credential'; throw e; }
+      const u = { uid: k, email: usuario + '@demo', nombre: D.alumnos[k].nombre }; sessionStorage.setItem(SES, JSON.stringify(u)); authCb && authCb(u);
+    },
+    async salir() { sessionStorage.removeItem(SES); authCb && authCb(null); },
+    async perfilMaestro(uid) { return D.maestros[uid] ? { uid, ...copia(D.maestros[uid]) } : null; },
+    async solicitarAcceso(u) { if (!D.maestros[u.uid]) { D.maestros[u.uid] = { nombre: u.nombre, email: u.email, estado: 'pendiente', rol: 'maestro', clases: [], creado: ahora() }; guardar(); } return this.perfilMaestro(u.uid); },
+    verSistema(cb) { return sub(() => cb(copia(D.sistema))); },
+    verMaestro(uid, cb) { return sub(() => cb(D.maestros[uid] ? { uid, ...copia(D.maestros[uid]) } : null)); },
+    verMaestros(cb) { return sub(() => cb(Object.entries(D.maestros).map(([uid, m]) => ({ uid, ...copia(m) })))); },
+    verClases(cb) { return sub(() => cb(Object.entries(D.clases).map(([id, c]) => { const { movs, ...r } = c; return { id, ...copia(r) }; }).sort((a, b) => a.nombre.localeCompare(b.nombre)))); },
+    verClase(id, cb) { return sub(() => { const c = D.clases[id]; if (!c) return cb(null); const { movs, ...r } = c; cb({ id, ...copia(r) }); }); },
+    verAlumnos(claseId, cb) { return sub(() => cb(Object.entries(D.alumnos).filter(([, a]) => claseId === '*' || a.clase === claseId).map(([uid, a]) => ({ uid, ...copia(a) })))); },
+    verAlumno(uid, cb) { return sub(() => cb(D.alumnos[uid] ? { uid, ...copia(D.alumnos[uid]) } : null)); },
+    verMovs(claseId, desde, cb) { return sub(() => cb(copia((D.clases[claseId]?.movs || []).filter(m => m.t >= desde)))); },
+    async darPuntos({ clase, alumnos, hab, maestro, nota }) {
+      const lote = [];
+      alumnos.forEach(a => { const m = { id: uid(), t: ahora(), alumno: a.uid, h: hab.id, n: hab.n, ic: hab.ic, v: hab.v, tipo: 'punto', maestro: maestro.uid, mn: maestro.nombre }; if (nota) m.nota = nota; aplicaMov(D, clase.id, a.uid, m); lote.push(m); });
+      guardar(); return lote;
+    },
+    async canjear({ clase, alumno, rec, maestro }) {
+      if (D.alumnos[alumno.uid].pts < rec.p) throw new Error('Puntos insuficientes');
+      const m = { id: uid(), t: ahora(), alumno: alumno.uid, h: rec.id, n: rec.n, ic: rec.ic, v: -rec.p, coste: rec.p, tipo: 'canje', maestro: maestro.uid, mn: maestro.nombre };
+      aplicaMov(D, clase.id, alumno.uid, m); guardar(); return [m];
+    },
+    async deshacer(claseId, lote) {
+      const c = D.clases[claseId];
+      lote.forEach(m => {
+        const a = D.alumnos[m.alumno]; if (!a) return;
+        if (m.tipo === 'canje') a.pts += m.coste; else { if (m.v > 0 || c.restar) a.pts -= m.v; if (m.v > 0) { a.total -= m.v; if (c.meta) c.meta.prog = Math.max(0, c.meta.prog - m.v); } else a.neg -= -m.v; if (a.cnt && a.cnt[m.h]) a.cnt[m.h]--; }
+        c.movs = c.movs.filter(x => x.id !== m.id); a.ult = a.ult.filter(x => x.id !== m.id);
+      });
+      guardar();
+    },
+    async guardarClase(id, datos) { Object.assign(D.clases[id], copia(datos)); guardar(); },
+    async crearClase(nombre) { const id = 'c' + uid(); D.clases[id] = { nombre, habilidades: HAB_DEF.map(h => ({ ...h })), recompensas: REC_DEF.map(r => ({ ...r })), meta: { n: 'Fiesta de clase', obj: 200, prog: 0, ic: '🎉' }, restar: true, ausentes: { f: '', ids: [] }, grupos: [], creado: ahora(), movs: [] }; guardar(); return id; },
+    async borrarClase(id) { delete D.clases[id]; Object.values(D.alumnos).forEach(a => { if (a.clase === id) a.clase = ''; }); guardar(); },
+    async guardarMaestro(uid, datos) { Object.assign(D.maestros[uid], copia(datos)); guardar(); },
+    async borrarMaestro(uid) { delete D.maestros[uid]; guardar(); },
+    async importarAlumnos(claseId, lista, prog) {
+      const res = { creados: 0, actualizados: 0, errores: [] };
+      for (const [i, a] of lista.entries()) {
+        await espera(40); prog && prog(i + 1, lista.length);
+        const k = Object.keys(D.alumnos).find(k => D.alumnos[k].usuario === a.usuario);
+        if (k) { if (D.alumnos[k].clave !== a.clave) { res.errores.push(a.usuario + ': ya existe con otra clave'); continue; } Object.assign(D.alumnos[k], { nombre: a.nombre, clase: claseId }); res.actualizados++; }
+        else { D.alumnos['demo-' + uid()] = nuevoAlumnoDoc(a, claseId); res.creados++; }
+      }
+      guardar(); return res;
+    },
+    async actualizarAlumno(uid, datos) { Object.assign(D.alumnos[uid], copia(datos)); guardar(); },
+    async cambiarClave(a, nueva) { D.alumnos[a.uid].clave = nueva; guardar(); },
+    async borrarAlumno(a) { delete D.alumnos[a.uid]; guardar(); },
+    async guardarCatalogo(mapas) { Object.assign(D.sistema, mapas); guardar(); },
+    async reiniciar(claseId, todo) { Object.values(D.alumnos).forEach(a => { if (a.clase !== claseId) return; a.pts = 0; a.neg = 0; a.ult = []; a.cnt = {}; if (todo) { a.total = 0; a.own = []; a.cfg = Mon.aleatorio(); } }); D.clases[claseId].movs = []; if (D.clases[claseId].meta) D.clases[claseId].meta.prog = 0; guardar(); },
+    async exportar() { return copia(D); },
+    // alumnado
+    async comprar(uidA, clave) {
+      const a = D.alumnos[uidA], p = D.sistema.precios[clave], r = D.sistema.req[clave] || 0;
+      if (p === undefined) throw new Error('Pieza desconocida'); if (a.own.includes(clave)) return;
+      if (a.pts < p) throw new Error('Te faltan puntos'); if (a.total < r) throw new Error('Aún no tienes el nivel');
+      a.pts -= p; a.own.push(clave); guardar();
+    },
+    async guardarAspecto(uidA, cfg) { D.alumnos[uidA].cfg = copia(cfg); guardar(); },
+    async renombrar(uidA, alias) { D.alumnos[uidA].alias = alias; guardar(); }
+  };
+}
+
+/* ---------- Firebase ---------- */
+function crearFirebase(cfg) {
+  let A, F, app, auth, db, app2, auth2, authCb = null;
+  const DOM = (typeof DOMINIO_ALUMNOS !== 'undefined' ? DOMINIO_ALUMNOS : 'alumnos.siurot.net');
+  const email = u => limpiaUsuario(u) + '@' + DOM;
+  const snapLista = s => s.docs.map(d => ({ uid: d.id, id: d.id, ...d.data() }));
+  async function auxiliar() { // segunda instancia para crear cuentas sin cerrar la sesión del maestro
+    if (!auth2) { app2 = A.initializeApp(cfg, 'altas'); auth2 = A.getAuth(app2); await A.setPersistence(auth2, A.inMemoryPersistence); }
+    return auth2;
+  }
+  async function uidDe(a) { // inicia sesión con las credenciales del alumno en la instancia auxiliar
+    const au = await auxiliar(); const r = await A.signInWithEmailAndPassword(au, email(a.usuario), a.clave); return { au, user: r.user };
+  }
+  const lote = () => F.writeBatch(db);
+  const inc = n => F.increment(n);
+  const api = {
+    modo: 'firebase',
+    async iniciar() {
+      const base = `https://www.gstatic.com/firebasejs/${FB_VER}/`;
+      const [m1, m2, m3] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
+      A = { ...m1, ...m2 }; F = m3;
+      app = A.initializeApp(cfg); auth = A.getAuth(app);
+      const cache = typeof CACHE_LOCAL !== 'undefined' && CACHE_LOCAL;
+      try { db = cache ? F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }) : F.getFirestore(app); } catch (e) { db = F.getFirestore(app); }
+      auth.languageCode = 'es';
+    },
+    onAuth(cb) { authCb = cb; A.onAuthStateChanged(auth, u => cb(u ? { uid: u.uid, email: u.email, nombre: u.displayName || u.email, foto: u.photoURL || '' } : null)); },
+    async entrarGoogle() {
+      const p = new A.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
+      try { await A.signInWithPopup(auth, p); } catch (e) { if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment') await A.signInWithRedirect(auth, p); else throw e; }
+    },
+    async entrarAlumno(usuario, clave, recordar) {
+      await A.setPersistence(auth, recordar ? A.browserLocalPersistence : A.browserSessionPersistence);
+      await A.signInWithEmailAndPassword(auth, email(usuario), clave.trim());
+    },
+    async salir() { await A.signOut(auth); },
+    async perfilMaestro(uid) { const s = await F.getDoc(F.doc(db, 'maestros', uid)); return s.exists() ? { uid, ...s.data() } : null; },
+    async solicitarAcceso(u) {
+      const sis = await F.getDoc(F.doc(db, 'sistema', 'config'));
+      if (!sis.exists()) { // primer acceso: esta persona se convierte en administradora
+        const { precios, req } = Mon.mapas();
+        await F.setDoc(F.doc(db, 'sistema', 'config'), { admin: u.uid, precios, req, centro: 'CEIP Manuel Siurot', creado: ahora() });
+        await F.setDoc(F.doc(db, 'maestros', u.uid), { nombre: u.nombre, email: u.email, estado: 'activo', rol: 'admin', clases: [], creado: ahora() });
+      } else {
+        const ref = F.doc(db, 'maestros', u.uid), s = await F.getDoc(ref);
+        if (!s.exists()) await F.setDoc(ref, { nombre: u.nombre, email: u.email, estado: 'pendiente', rol: 'maestro', clases: [], creado: ahora() });
+      }
+      return this.perfilMaestro(u.uid);
+    },
+    verSistema(cb, err) { return F.onSnapshot(F.doc(db, 'sistema', 'config'), s => cb(s.exists() ? s.data() : null), err); },
+    verMaestro(uid, cb, err) { return F.onSnapshot(F.doc(db, 'maestros', uid), s => cb(s.exists() ? { uid, ...s.data() } : null), err); },
+    verMaestros(cb, err) { return F.onSnapshot(F.collection(db, 'maestros'), s => cb(snapLista(s)), err); },
+    verClases(cb, err) { return F.onSnapshot(F.collection(db, 'clases'), s => cb(snapLista(s).sort((a, b) => a.nombre.localeCompare(b.nombre))), err); },
+    verClase(id, cb, err) { return F.onSnapshot(F.doc(db, 'clases', id), s => cb(s.exists() ? { id, ...s.data() } : null), err); },
+    verAlumnos(claseId, cb, err) { const q = claseId === '*' ? F.collection(db, 'alumnos') : F.query(F.collection(db, 'alumnos'), F.where('clase', '==', claseId)); return F.onSnapshot(q, s => cb(snapLista(s)), err); },
+    verAlumno(uid, cb, err) { return F.onSnapshot(F.doc(db, 'alumnos', uid), s => cb(s.exists() ? { uid, ...s.data() } : null), err); },
+    verMovs(claseId, desde, cb, err) { const q = F.query(F.collection(db, 'clases', claseId, 'movs'), F.where('t', '>=', desde), F.orderBy('t', 'desc'), F.limit(4000)); return F.onSnapshot(q, s => cb(s.docs.map(d => ({ id: d.id, ...d.data() }))), err); },
+    async darPuntos({ clase, alumnos, hab, maestro, nota }) {
+      const b = lote(), out = []; let pos = 0;
+      alumnos.forEach(a => {
+        const ref = F.doc(F.collection(db, 'clases', clase.id, 'movs'));
+        const m = { id: ref.id, t: ahora(), alumno: a.uid, h: hab.id, n: hab.n, ic: hab.ic, v: hab.v, tipo: 'punto', maestro: maestro.uid, mn: maestro.nombre }; if (nota) m.nota = nota;
+        const { id, ...guardado } = m; b.set(ref, guardado);
+        const up = { ult: [entradaUlt(m), ...(a.ult || [])].slice(0, ULT_MAX) };
+        if (hab.v > 0 || clase.restar) up.pts = inc(hab.v);
+        if (hab.v > 0) { up.total = inc(hab.v); pos += hab.v; } else up.neg = inc(-hab.v);
+        up['cnt.' + hab.id] = inc(1);
+        b.update(F.doc(db, 'alumnos', a.uid), up); out.push(m);
+      });
+      if (pos && clase.meta) b.update(F.doc(db, 'clases', clase.id), { 'meta.prog': inc(pos) });
+      await b.commit(); return out;
+    },
+    async canjear({ clase, alumno, rec, maestro }) {
+      const ref = F.doc(F.collection(db, 'clases', clase.id, 'movs')), aRef = F.doc(db, 'alumnos', alumno.uid);
+      const m = { id: ref.id, t: ahora(), alumno: alumno.uid, h: rec.id, n: rec.n, ic: rec.ic, v: -rec.p, coste: rec.p, tipo: 'canje', maestro: maestro.uid, mn: maestro.nombre };
+      await F.runTransaction(db, async tx => {
+        const s = await tx.get(aRef); const d = s.data(); if ((d.pts || 0) < rec.p) throw new Error('Puntos insuficientes');
+        const { id, ...g } = m; tx.set(ref, g); tx.update(aRef, { pts: inc(-rec.p), ult: [entradaUlt(m), ...(d.ult || [])].slice(0, ULT_MAX) });
+      });
+      return [m];
+    },
+    async deshacer(claseId, lista, clase, alumnosActuales) {
+      const b = lote(); let pos = 0; const por = {};
+      lista.forEach(m => { (por[m.alumno] = por[m.alumno] || []).push(m); b.delete(F.doc(db, 'clases', claseId, 'movs', m.id)); });
+      Object.entries(por).forEach(([uid, ms]) => {
+        const a = alumnosActuales.find(x => x.uid === uid); if (!a) return;
+        let p = 0, t = 0, n = 0; ms.forEach(m => { if (m.tipo === 'canje') p += m.coste; else { if (m.v > 0 || clase.restar) p -= m.v; if (m.v > 0) { t -= m.v; pos += m.v; } else n -= -m.v; } });
+        const ids = ms.map(m => m.id), up = { pts: inc(p), total: inc(t), neg: inc(n), ult: (a.ult || []).filter(x => !ids.includes(x.id)) };
+        ms.forEach(m => { if (m.tipo !== 'canje') up['cnt.' + m.h] = inc(-1); }); b.update(F.doc(db, 'alumnos', uid), up);
+      });
+      if (pos && clase.meta) b.update(F.doc(db, 'clases', claseId), { 'meta.prog': inc(-pos) });
+      await b.commit();
+    },
+    async guardarClase(id, datos) { await F.updateDoc(F.doc(db, 'clases', id), datos); },
+    async crearClase(nombre) { const ref = F.doc(F.collection(db, 'clases')); await F.setDoc(ref, { nombre, habilidades: HAB_DEF, recompensas: REC_DEF, meta: { n: 'Fiesta de clase', obj: 200, prog: 0, ic: '🎉' }, restar: true, ausentes: { f: '', ids: [] }, grupos: [], creado: ahora() }); return ref.id; },
+    async borrarClase(id) {
+      const s = await F.getDocs(F.query(F.collection(db, 'alumnos'), F.where('clase', '==', id)));
+      let b = lote(), n = 0; const enviar = async () => { await b.commit(); b = lote(); n = 0; };
+      for (const d of s.docs) { b.update(d.ref, { clase: '' }); if (++n >= 400) await enviar(); }
+      for (const d of (await F.getDocs(F.collection(db, 'clases', id, 'movs'))).docs) { b.delete(d.ref); if (++n >= 400) await enviar(); }
+      b.delete(F.doc(db, 'clases', id)); await enviar();
+    },
+    async guardarMaestro(uid, datos) { await F.updateDoc(F.doc(db, 'maestros', uid), datos); },
+    async borrarMaestro(uid) { await F.deleteDoc(F.doc(db, 'maestros', uid)); },
+    async importarAlumnos(claseId, lista, prog) {
+      const res = { creados: 0, actualizados: 0, errores: [] }; const au = await auxiliar();
+      for (const [i, a] of lista.entries()) {
+        prog && prog(i + 1, lista.length);
+        try {
+          let uid;
+          try { uid = (await A.createUserWithEmailAndPassword(au, email(a.usuario), a.clave)).user.uid; }
+          catch (e) {
+            if (e.code !== 'auth/email-already-in-use') throw e;
+            try { uid = (await A.signInWithEmailAndPassword(au, email(a.usuario), a.clave)).user.uid; }
+            catch (e2) { throw new Error('ya existe una cuenta con ese usuario y otra clave'); }
+          }
+          await A.signOut(au);
+          const ref = F.doc(db, 'alumnos', uid), s = await F.getDoc(ref);
+          if (s.exists()) { await F.updateDoc(ref, { nombre: a.nombre, clase: claseId, clave: a.clave, usuario: a.usuario }); res.actualizados++; }
+          else { await F.setDoc(ref, nuevoAlumnoDoc(a, claseId)); res.creados++; }
+        } catch (e) {
+          const msg = e.code === 'auth/too-many-requests' ? 'demasiados intentos seguidos; espera unos minutos y vuelve a importar' : e.code === 'auth/weak-password' ? 'la clave debe tener al menos 6 caracteres' : (e.message || e.code);
+          res.errores.push(a.usuario + ': ' + msg);
+          if (e.code === 'auth/too-many-requests') break;
+        }
+      }
+      return res;
+    },
+    async actualizarAlumno(uid, datos) { await F.updateDoc(F.doc(db, 'alumnos', uid), datos); },
+    async cambiarClave(a, nueva) {
+      const { au, user } = await uidDe(a); await A.updatePassword(user, nueva); await A.signOut(au);
+      await F.updateDoc(F.doc(db, 'alumnos', a.uid), { clave: nueva });
+    },
+    async borrarAlumno(a) {
+      let aviso = '';
+      try { const { user } = await uidDe(a); await A.deleteUser(user); } catch (e) { aviso = 'No se pudo borrar la cuenta de acceso (bórrala en la consola de Firebase si hace falta).'; }
+      await F.deleteDoc(F.doc(db, 'alumnos', a.uid)); return aviso;
+    },
+    async guardarCatalogo(mapas) { await F.updateDoc(F.doc(db, 'sistema', 'config'), mapas); },
+    async reiniciar(claseId, todo) {
+      const s = await F.getDocs(F.query(F.collection(db, 'alumnos'), F.where('clase', '==', claseId)));
+      let b = lote(), n = 0; const enviar = async () => { await b.commit(); b = lote(); n = 0; };
+      for (const d of s.docs) { const up = { pts: 0, neg: 0, ult: [], cnt: {} }; if (todo) Object.assign(up, { total: 0, own: [], cfg: Mon.aleatorio() }); b.update(d.ref, up); if (++n >= 400) await enviar(); }
+      const ms = await F.getDocs(F.collection(db, 'clases', claseId, 'movs'));
+      for (const d of ms.docs) { b.delete(d.ref); if (++n >= 400) await enviar(); }
+      const cd = await F.getDoc(F.doc(db, 'clases', claseId)); if (cd.exists() && cd.data().meta) b.update(F.doc(db, 'clases', claseId), { 'meta.prog': 0 }); await enviar();
+    },
+    async exportar() {
+      const out = { exportado: new Date().toISOString(), maestros: {}, clases: {}, alumnos: {} };
+      (await F.getDocs(F.collection(db, 'maestros'))).docs.forEach(d => out.maestros[d.id] = d.data());
+      (await F.getDocs(F.collection(db, 'alumnos'))).docs.forEach(d => out.alumnos[d.id] = d.data());
+      for (const d of (await F.getDocs(F.collection(db, 'clases'))).docs) { out.clases[d.id] = d.data(); out.clases[d.id].movs = (await F.getDocs(F.collection(db, 'clases', d.id, 'movs'))).docs.map(x => ({ id: x.id, ...x.data() })); }
+      return out;
+    },
+    async comprar(uidA, clave) {
+      const ref = F.doc(db, 'alumnos', uidA), sis = await F.getDoc(F.doc(db, 'sistema', 'config'));
+      const p = sis.data().precios[clave], r = (sis.data().req || {})[clave] || 0;
+      await F.runTransaction(db, async tx => {
+        const s = await tx.get(ref), a = s.data();
+        if (p === undefined) throw new Error('Pieza desconocida'); if ((a.own || []).includes(clave)) return;
+        if (a.pts < p) throw new Error('Te faltan puntos'); if ((a.total || 0) < r) throw new Error('Aún no tienes el nivel');
+        tx.update(ref, { pts: a.pts - p, own: [...(a.own || []), clave] });
+      });
+    },
+    async guardarAspecto(uidA, cfg) { await F.updateDoc(F.doc(db, 'alumnos', uidA), { cfg }); },
+    async renombrar(uidA, alias) { await F.updateDoc(F.doc(db, 'alumnos', uidA), { alias }); }
+  };
+  return api;
+}
+
+/* ---------- Habilidades y recompensas por defecto ---------- */
+const HAB_DEF = [
+  { id: 'h1', n: 'Ayuda a otros', ic: '🤝', v: 1 }, { id: 'h2', n: 'Trabajo en equipo', ic: '👥', v: 1 }, { id: 'h3', n: 'Esfuerzo', ic: '💪', v: 1 },
+  { id: 'h4', n: 'Participa', ic: '🙋', v: 1 }, { id: 'h5', n: 'Tarea hecha', ic: '📚', v: 1 }, { id: 'h6', n: 'Respeto', ic: '💚', v: 1 },
+  { id: 'h7', n: 'Superación', ic: '🚀', v: 2 }, { id: 'h8', n: 'Orden y limpieza', ic: '🧹', v: 1 },
+  { id: 'n1', n: 'Habla sin turno', ic: '🗣️', v: -1 }, { id: 'n2', n: 'Sin tarea', ic: '📭', v: -1 }, { id: 'n3', n: 'Falta de respeto', ic: '🚫', v: -1 }, { id: 'n4', n: 'Distraído', ic: '💭', v: -1 }
+];
+const REC_DEF = [
+  { id: 'r1', n: 'Elegir sitio un día', ic: '🪑', p: 20 }, { id: 'r2', n: 'Ayudante del maestro', ic: '🧑‍🏫', p: 15 }, { id: 'r3', n: 'Poner la música', ic: '🎵', p: 25 },
+  { id: 'r4', n: 'Primero en la fila', ic: '🥇', p: 10 }, { id: 'r5', n: 'Pase sin deberes', ic: '📝', p: 60 }, { id: 'r6', n: 'Elegir un juego', ic: '🎲', p: 40 }
+];
+
+const Datos = (typeof CONFIG_FIREBASE !== 'undefined' && CONFIG_FIREBASE && CONFIG_FIREBASE.apiKey) ? crearFirebase(CONFIG_FIREBASE) : crearDemo();
+
+/* ===== App del alumnado ===== */
+const A = { user: null, yo: null, clase: null, sistema: null, tab: 'inicio', cat: 'color', prueba: null, montada: false, claseId: null, vistos: null };
+const subsA = {};
+const susA = (k, f) => { if (subsA[k]) try { subsA[k](); } catch (e) { } subsA[k] = f; };
+const errA = e => { console.error(e); toast(textoError(e), { tipo: 'error' }); };
+const FRASES = ['¡Hola!', '¡Me encanta mi look!', '¡Vamos a por más estrellas!', '¡Hoy es un gran día!', '¿Me compras algo nuevo?', '¡Achís!', '¡Cosquillas no!', '¡Choca esos cinco!', '¡Qué bien lo estás haciendo!', '¿Jugamos?'];
+
+(async function () {
+  try { await Datos.iniciar(); } catch (e) { console.error(e); return html($('#raiz'), '<div class="acceso"><div class="acceso-caja"><h1>Sin conexión</h1><p>No se pudo conectar. Revisa internet y vuelve a intentarlo.</p><button class="btn pri" onclick="location.reload()">Reintentar</button></div></div>'); }
+  if (Datos.modo === 'demo') $('#demo').hidden = false;
+  Datos.onAuth(alSesion);
+})();
+
+function alSesion(u) {
+  Object.keys(subsA).forEach(k => { try { subsA[k](); } catch (e) { } delete subsA[k]; });
+  Object.assign(A, { user: u, yo: null, clase: null, montada: false, claseId: null, prueba: null, vistos: null, tab: 'inicio' });
+  document.body.classList.remove('en-taller');
+  if (!u) return pantallaAcceso();
+  html($('#raiz'), '<div class="cargando"><div><i></i>Despertando a tu monstruo…</div></div>');
+  susA('sis', Datos.verSistema(s => { A.sistema = s; if (A.montada) pintarTodo(); }, errA));
+  susA('yo', Datos.verAlumno(u.uid, nuevo => {
+    if (!nuevo) return html($('#raiz'), `<div class="acceso"><div class="acceso-caja"><div class="trio">${Mon.svg({ color: 'noche', ojos: 'dormilon', boca: 'sorpresa' })}</div><h1>Esta cuenta no es de alumno</h1><p>Esta app es para el alumnado. Si eres maestro, usa la app del maestro.</p><button class="btn pri" id="sal">Salir</button></div></div>`), $('#sal').onclick = () => Datos.salir();
+    const ant = A.yo; A.yo = nuevo;
+    if (A.claseId !== nuevo.clase) { A.claseId = nuevo.clase; if (nuevo.clase) susA('clase', Datos.verClase(nuevo.clase, c => { A.clase = c; if (A.montada && A.tab === 'inicio') pintarContenido(); }, () => { })); }
+    if (!A.montada) { montar(); bienvenida(); } else { pintarTodo(); if (ant) novedades(ant, nuevo); }
+  }, errA));
+}
+
+/* ---------- Acceso ---------- */
+function pantallaAcceso() {
+  const trio = [{ color: 'lima', ojos: 'felices', cabeza: 'brote', forma: 'peludo' }, { color: 'violeta', ojos: 'brillantes', boca: 'carcajada', sombrero: 'mago', efecto: 'brillos' }, { color: 'turquesa', ojos: 'dos', boca: 'colmillos', forma: 'cuadrado', comp: 'gafas' }].map(c => Mon.svg(c)).join('');
+  html($('#raiz'), `<div class="acceso"><form class="acceso-caja" id="f-acc" autocomplete="off"><div class="trio">${trio}</div><h1>Mi monstruo</h1><p>Entra con tu usuario y tu clave</p>
+  <div id="err"></div>
+  <label class="campo"><span>Usuario</span><input id="u" autocapitalize="none" autocorrect="off" spellcheck="false" required></label>
+  <label class="campo clave-w"><span>Clave</span><input id="c" type="password" autocapitalize="none" autocorrect="off" spellcheck="false" required><button type="button" id="ver" aria-label="Ver clave">👁</button></label>
+  <label class="recordar"><input type="checkbox" id="rec"> Recordarme en este dispositivo (solo si es tuyo, no en los Chromebook del cole)</label>
+  <button class="btn pri entrar" id="entrar">Entrar</button></form></div>`);
+  $('#u').focus();
+  $('#ver').onclick = () => { const c = $('#c'); c.type = c.type === 'password' ? 'text' : 'password'; };
+  $('#f-acc').onsubmit = async e => {
+    e.preventDefault(); const b = $('#entrar'); b.disabled = true; b.textContent = 'Entrando…'; $('#err').innerHTML = '';
+    try { await Datos.entrarAlumno($('#u').value, $('#c').value, $('#rec').checked); }
+    catch (err) { $('#err').innerHTML = `<div class="err-acc">${esc(textoError(err))}</div>`; b.disabled = false; b.textContent = 'Entrar'; animar($('.trio .mon:nth-child(2)'), 'triste'); }
+  };
+}
+
+/* ---------- Estructura ---------- */
+const TABS = [['inicio', '🏠', 'Inicio'], ['taller', '🛍️', 'Taller'], ['logros', '🏅', 'Logros'], ['historial', '📜', 'Historial']];
+function montar() {
+  A.montada = true;
+  html($('#raiz'), `<div class="al"><aside class="izq"><div class="tarjeta-mon">
+    <div class="top-al"><span class="hola" id="hola"></span><button class="son-al" id="son" aria-label="Sonido"></button><button class="salir-al" id="salir">Salir</button></div>
+    <div class="escenario" id="esc" role="button" tabindex="0" aria-label="Tu monstruo"></div>
+    <div class="alias-f"><b id="alias"></b><button id="ed-alias" aria-label="Cambiar el nombre de tu monstruo">✏️</button></div>
+    <div class="nivel-c" id="niv"></div><div class="stats" id="stats"></div></div></aside>
+    <main class="der"><nav class="tabs-al" id="tabs" aria-label="Secciones"></nav><div id="cont"></div></main></div>`);
+  $('#son').onclick = () => { Sonido.on = !Sonido.on; $('#son').textContent = Sonido.on ? '🔊' : '🔇'; if (Sonido.on) Sonido.tocar('pop'); };
+  $('#son').textContent = Sonido.on ? '🔊' : '🔇';
+  $('#salir').onclick = async () => { if (await confirmar('¿Quieres salir? Para volver a entrar necesitarás tu usuario y tu clave.', { si: 'Salir', titulo: 'Salir' })) { await Nav.hastaInicio(); Datos.salir(); } };
+  $('#esc').onclick = tocarMonstruo; $('#esc').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tocarMonstruo(); } };
+  $('#ed-alias').onclick = renombrar;
+  pintarTodo();
+}
+function pintarTodo() { pintarLado(); pintarTabs(); pintarContenido(); }
+const cfgVista = () => { const c = { ...Mon.BASE, ...A.yo.cfg }; if (A.prueba) c[A.prueba.k] = A.prueba.id; return c; };
+function pintarLado() {
+  const y = A.yo, nv = Mon.infoNivel(y.total || 0);
+  $('#hola').innerHTML = `Hola, <b>${esc((y.nombre || '').split(' ')[0])}</b>`;
+  const esc_ = $('#esc'), cfg = cfgVista(), k = JSON.stringify(cfg);
+  if (esc_.dataset.k !== k) { esc_.innerHTML = Mon.fondo(cfg.fondo) + Mon.svg(cfg) + '<div class="chip-niv"></div><div class="pill-pts"></div><div class="probando" hidden>Probando…</div>'; esc_.dataset.k = k; }
+  esc_.querySelector('.chip-niv').textContent = `Nivel ${nv.n} · ${nv.nombre}`;
+  esc_.querySelector('.pill-pts').innerHTML = `⭐ ${y.pts}`;
+  esc_.querySelector('.probando').hidden = !A.prueba;
+  $('#alias').textContent = y.alias || 'Mi monstruo';
+  $('#niv').innerHTML = `<div class="fila-n"><span><b>Nivel ${nv.n}</b> · ${nv.nombre}</span><span>${nv.hasta ? `faltan ${nv.faltan} ⭐ para el ${nv.n + 1}` : '¡Nivel máximo!'}</span></div><div class="barra"><i style="width:${nv.pct * 100}%"></i></div>`;
+  const piezas = numPiezas();
+  $('#stats').innerHTML = `<div><b>${y.pts}</b><small>Para gastar</small></div><div><b>${y.total || 0}</b><small>Ganados</small></div><div><b>${piezas.tengo}</b><small>Piezas</small></div>`;
+}
+function pintarTabs() {
+  html($('#tabs'), TABS.map(([id, ic, n]) => `<button data-t="${id}" ${A.tab === id ? 'aria-current="page"' : ''}><span class="ic">${ic}</span>${n}</button>`).join(''));
+  $$('#tabs button').forEach(b => b.onclick = () => irTab(b.dataset.t));
+}
+function irTab(t) {
+  if (t === A.tab) return;
+  if (t === 'inicio') return Nav.atras();
+  if (A.tab === 'inicio') Nav.abrir(() => mostrarTab('inicio')); else Nav.reemplazar(() => mostrarTab('inicio'));
+  mostrarTab(t);
+}
+function mostrarTab(t) {
+  if (A.tab === 'taller' && t !== 'taller' && A.prueba) { A.prueba = null; pintarLado(); }
+  A.tab = t; document.body.classList.toggle('en-taller', t === 'taller');
+  pintarTabs(); pintarContenido(); window.scrollTo({ top: 0 });
+}
+function pintarContenido() { const c = $('#cont'); if (!c) return; ({ inicio: tInicio, taller: tTaller, logros: tLogros, historial: tHistorial })[A.tab](c); }
+
+/* ---------- Precios ---------- */
+const clave = (k, id) => k + ':' + id;
+const precio = (k, id) => { const p = A.sistema && A.sistema.precios && A.sistema.precios[clave(k, id)]; return p !== undefined ? p : (Mon.item(k, id) || [])[2] || 0; };
+const reqTotal = (k, id) => { const r = A.sistema && A.sistema.req; if (r && A.sistema.precios) return r[clave(k, id)] || 0; const it = Mon.item(k, id); return it && it[3] ? Mon.NIVELES[it[3] - 1][0] : 0; };
+const tiene = (k, id) => precio(k, id) === 0 || (A.yo.own || []).includes(clave(k, id));
+const bloqueado = (k, id) => !tiene(k, id) && (A.yo.total || 0) < reqTotal(k, id);
+function numPiezas() { let t = 0, n = 0; Mon.ORDEN.forEach(k => Mon.CAT[k].i.forEach(it => { n++; if (tiene(k, it[0])) t++; })); return { tengo: t, total: n }; }
+function cfgSegura(c) { const o = { ...Mon.BASE }; Mon.ORDEN.forEach(k => { if (c[k] && Mon.item(k, c[k]) && tiene(k, c[k])) o[k] = c[k]; }); return o; }
+
+/* ---------- Inicio ---------- */
+function tInicio(c) {
+  const y = A.yo, cl = A.clase, m = cl && cl.meta, ult = (y.ult || []).slice(0, 4);
+  const asequibles = []; Mon.ORDEN.forEach(k => Mon.CAT[k].i.forEach(it => { if (!tiene(k, it[0]) && !bloqueado(k, it[0]) && precio(k, it[0]) <= y.pts) asequibles.push([k, it]); }));
+  const nom = (y.nombre || '').split(' ')[0];
+  html(c, `<div class="saludo"><h1>¡Hola, ${esc(nom)}!</h1><p>${y.pts ? `Tienes ${pila(y.pts, 'estrella', 'estrellas')} para gastar en el taller.` : 'Consigue estrellas en clase para mejorar tu monstruo.'}</p></div>
+  ${asequibles.length ? `<div class="bloque"><h2>🛍️ Ya puedes comprar<span class="esp"></span><button class="btn pri chico" id="ir-taller">Ir al taller</button></h2><div class="items" style="grid-template-columns:repeat(auto-fill,minmax(96px,1fr))">${asequibles.sort((a, b) => precio(b[0], b[1][0]) - precio(a[0], a[1][0])).slice(0, 6).map(([k, it]) => `<button class="item" data-k="${k}" data-id="${it[0]}"><div class="escena">${Mon.fondo(k === 'fondo' ? it[0] : y.cfg.fondo)}${Mon.svg({ ...y.cfg, [k]: it[0] }, { anim: false, vb: Mon.encuadre(y.cfg, k) })}</div><b>${esc(it[1])}</b><span class="chip oro">⭐ ${precio(k, it[0])}</span></button>`).join('')}</div></div>` : ''}
+  ${m && m.obj ? `<div class="bloque"><h2>🎯 Meta de tu clase</h2><div class="meta-al"><span class="m-ic">${esc(m.ic || '🎯')}</span><div style="flex:1"><b>${esc(m.n)}</b><br><small>${m.prog >= m.obj ? '¡La habéis conseguido entre todos! 🎉' : `Lleváis ${m.prog} de ${m.obj} estrellas entre toda la clase`}</small><div class="barra"><i style="width:${Math.min(100, m.prog / m.obj * 100)}%"></i></div></div></div></div>` : ''}
+  <div class="bloque"><h2>📜 Tus últimas estrellas</h2>${ult.length ? `<ul class="lista-al">${ult.map(filaUlt).join('')}</ul>` : '<div class="vacio"><b>Todavía nada</b>Cuando tu maestro te dé puntos, aparecerán aquí.</div>'}</div>
+  ${cl && (cl.recompensas || []).length ? `<div class="bloque"><h2>🎁 Recompensas de tu clase</h2><p style="margin:-4px 0 12px;font-weight:700;color:var(--tinta2)">Pídeselas a tu maestro cuando tengas las estrellas.</p><div class="recs-al">${cl.recompensas.map(r => `<div class="rec-al ${y.pts >= r.p ? 'ya' : ''}"><span class="r-ic">${esc(r.ic)}</span>${esc(r.n)}<span class="chip ${y.pts >= r.p ? 'ok' : ''}">⭐ ${r.p}</span><small>${y.pts >= r.p ? '¡Ya puedes!' : `Te faltan ${r.p - y.pts}`}</small></div>`).join('')}</div></div>` : ''}`);
+  $('#ir-taller') && ($('#ir-taller').onclick = () => irTab('taller'));
+  $$('#cont .item').forEach(b => b.onclick = () => { A.cat = b.dataset.k; irTab('taller'); setTimeout(() => elegirPieza(b.dataset.k, b.dataset.id), 50); });
+}
+function filaUlt(m) {
+  const cls = m.tipo === 'canje' ? 'canje' : m.v < 0 ? 'neg' : '';
+  const v = m.tipo === 'canje' ? `−${Math.abs(m.v)}` : (m.v > 0 ? '+' : '−') + Math.abs(m.v);
+  return `<li><span class="li-ic">${esc(m.ic || '⭐')}</span><span class="li-t"><b>${m.tipo === 'canje' ? 'Has canjeado: ' : ''}${esc(m.n)}</b><small>${haceCuanto(m.t)}</small></span><span class="li-v ${cls}">${v}</span></li>`;
+}
+
+/* ---------- Taller ---------- */
+function tTaller(c) {
+  // Conserva la posición de la barra de categorías y de la página al redibujar
+  const barraPrev = $('#cats'), scrollCats = barraPrev ? barraPrev.scrollLeft : null, scrollY = window.scrollY;
+  const y = A.yo, k = A.cat, p = numPiezas();
+  const cuenta = kk => { const l = Mon.CAT[kk].i; return `${l.filter(it => tiene(kk, it[0])).length}/${l.length}`; };
+  html(c, `<div class="coleccion"><span>Tu colección: ${p.tengo} de ${p.total} piezas</span><span class="chip oro">⭐ ${y.pts}</span></div>
+  <div class="cats" id="cats">${Mon.ORDEN.map(kk => `<button data-k="${kk}" aria-pressed="${kk === k}">${Mon.CAT[kk].ic} ${Mon.CAT[kk].n} <span class="cnt">${cuenta(kk)}</span></button>`).join('')}</div>
+  <div class="items" id="items">${Mon.CAT[k].i.map(it => {
+    const id = it[0], t = tiene(k, id), pu = y.cfg[k] === id, bl = bloqueado(k, id), pr = precio(k, id), prob = A.prueba && A.prueba.k === k && A.prueba.id === id;
+    const chip = pu ? '<span class="chip ok">✓ Puesto</span>' : t ? '<span class="chip">Tuyo</span>' : bl ? `<span class="chip">Nivel ${Mon.nivel(reqTotal(k, id))}</span>` : `<span class="chip ${y.pts >= pr ? 'oro' : 'mal'}">⭐ ${pr}</span>`;
+    return `<button class="item ${pu ? 'puesto' : ''} ${bl ? 'bloq' : ''}" data-id="${id}" aria-pressed="${!!prob}" aria-label="${esc(it[1])}">${bl ? '<span class="candado">🔒</span>' : ''}<div class="escena">${Mon.fondo(k === 'fondo' ? id : y.cfg.fondo)}${Mon.svg({ ...y.cfg, [k]: id }, { anim: false, vb: Mon.encuadre(y.cfg, k) })}</div><b>${esc(it[1])}</b>${chip}</button>`;
+  }).join('')}</div><div id="compra"></div>`);
+  const cats = $('#cats');
+  if (scrollCats !== null) { cats.scrollLeft = scrollCats; window.scrollTo(0, scrollY); }
+  else centrarCategoria(cats, false);
+  $$('#cats button').forEach(b => b.onclick = () => { A.cat = b.dataset.k; if (A.prueba) { A.prueba = null; pintarLado(); } tTaller(c); centrarCategoria($('#cats'), true); });
+  $('#items').onclick = e => { const b = e.target.closest('.item'); if (b) elegirPieza(A.cat, b.dataset.id); };
+  pintarCompra();
+}
+// Desplaza solo la barra de categorías (no la página) para que la elegida quede a la vista
+function centrarCategoria(cats, suave) {
+  const b = cats && cats.querySelector(`[data-k="${A.cat}"]`); if (!b) return;
+  const izq = b.offsetLeft - cats.offsetLeft, dest = izq - (cats.clientWidth - b.offsetWidth) / 2;
+  const fuera = izq < cats.scrollLeft || izq + b.offsetWidth > cats.scrollLeft + cats.clientWidth;
+  if (!suave || fuera) cats.scrollTo({ left: Math.max(0, dest), behavior: suave ? 'smooth' : 'auto' });
+}
+function elegirPieza(k, id) {
+  const y = A.yo;
+  if (tiene(k, id)) {
+    A.prueba = null;
+    if (y.cfg[k] !== id) { const nuevo = cfgSegura({ ...y.cfg, [k]: id }); A.yo.cfg = nuevo; Datos.guardarAspecto(y.uid, nuevo).catch(errA); Sonido.tocar('pop'); }
+    pintarLado(); if (A.tab === 'taller') tTaller($('#cont')); animar($('#esc'), 'salta'); return;
+  }
+  A.prueba = { k, id }; pintarLado(); if (A.tab === 'taller') tTaller($('#cont')); else pintarCompra(); animar($('#esc'), 'saluda'); Sonido.tocar('tic');
+}
+function pintarCompra() {
+  const z = $('#compra'); if (!z) return; if (!A.prueba) return z.innerHTML = '';
+  const { k, id } = A.prueba, it = Mon.item(k, id), pr = precio(k, id), y = A.yo, bl = bloqueado(k, id);
+  let txt, btn;
+  if (bl) { const r = reqTotal(k, id), lv = Mon.nivel(r); txt = `<b>${esc(it[1])}</b><small>Se desbloquea en el nivel ${lv}. Te faltan ${pila(r - (y.total || 0), 'estrella ganada', 'estrellas ganadas')}.</small>`; btn = '<button class="btn pri" disabled>🔒 Bloqueado</button>'; }
+  else if (y.pts < pr) { txt = `<b>${esc(it[1])} · ⭐ ${pr}</b><small>Te faltan ${pila(pr - y.pts, 'estrella', 'estrellas')}. ¡Sigue así!</small>`; btn = `<button class="btn pri" disabled>Faltan ${pr - y.pts} ⭐</button>`; }
+  else { txt = `<b>${esc(it[1])} · ⭐ ${pr}</b><small>Te quedarán ${pila(y.pts - pr, 'estrella', 'estrellas')}</small>`; btn = `<button class="btn pri" id="comprar">Comprar</button>`; }
+  z.innerHTML = `<div class="barra-compra"><button class="btn icono sec" id="quitar" aria-label="Quitar prueba">✕</button><div class="bc-t">${txt}</div>${btn}</div>`;
+  $('#quitar').onclick = () => { A.prueba = null; pintarLado(); tTaller($('#cont')); };
+  $('#comprar') && ($('#comprar').onclick = comprar);
+}
+async function comprar() {
+  const { k, id } = A.prueba, it = Mon.item(k, id), pr = precio(k, id), b = $('#comprar');
+  b.disabled = true; b.textContent = 'Comprando…';
+  try {
+    await Datos.comprar(A.yo.uid, clave(k, id));
+    if (!(A.yo.own || []).includes(clave(k, id))) A.yo.own = [...(A.yo.own || []), clave(k, id)];
+    const nuevo = cfgSegura({ ...A.yo.cfg, [k]: id }); A.yo.cfg = nuevo; A.prueba = null;
+    await Datos.guardarAspecto(A.yo.uid, nuevo);
+    Sonido.tocar('compra'); const r = $('#esc').getBoundingClientRect(); confeti(130, { x: r.left + r.width / 2, y: r.top + r.height / 2 });
+    pintarLado(); tTaller($('#cont')); animar($('#esc'), 'salta'); decir('¡Me encanta! 😍');
+    toast(`¡Conseguido: ${it[1]}!`, { ic: '🎉', tipo: 'ok' });
+  } catch (e) { errA(e); b.disabled = false; b.textContent = 'Comprar'; }
+}
+
+/* ---------- Logros ---------- */
+function logros() {
+  const y = A.yo, tot = y.total || 0, own = (y.own || []).length, lv = Mon.nivel(tot);
+  const deCat = k => Mon.CAT[k].i.filter(it => tiene(k, it[0])).length;
+  const estilo = Mon.ORDEN.filter(k => k !== 'fondo' && y.cfg[k] && y.cfg[k] !== Mon.BASE[k]).length;
+  return [
+    ['⭐', 'Primera estrella', 'Consigue tu primer punto', tot, 1], ['🌟', 'En marcha', 'Gana 25 estrellas', tot, 25], ['💫', 'Imparable', 'Gana 100 estrellas', tot, 100], ['🏆', 'Superestrella', 'Gana 250 estrellas', tot, 250], ['👑', 'Leyenda del aula', 'Gana 500 estrellas', tot, 500],
+    ['🛍️', 'Primera compra', 'Compra tu primera pieza', own, 1], ['🎒', 'Coleccionista', 'Consigue 10 piezas', own, 10], ['💎', 'Gran coleccionista', 'Consigue 25 piezas', own, 25],
+    ['🎨', 'Paleta completa', 'Consigue todos los colores', deCat('color'), Mon.CAT.color.i.length], ['🗺️', 'Viajero', 'Consigue 5 fondos', deCat('fondo'), 5], ['🐣', 'Con compañía', 'Adopta una mascota', deCat('mascota') - 1, 1],
+    ['🐷', 'Ahorrador', 'Junta 100 estrellas sin gastarlas', y.pts, 100], ['😎', 'Con estilo', 'Lleva piezas de 6 categorías a la vez', estilo, 6], ['🚀', 'Nivel 5', 'Llega al nivel 5', lv, 5], ['🛸', 'Nivel 10', 'Llega al nivel 10', lv, 10]
+  ].map(([ic, n, d, v, obj]) => ({ ic, n, d, v: Math.max(0, v), obj, ok: v >= obj }));
+}
+function tLogros(c) {
+  const L = logros(), hechos = L.filter(l => l.ok).length;
+  html(c, `<div class="saludo"><h1>Tus logros</h1><p>Has conseguido ${hechos} de ${L.length}</p></div>
+  <div class="logros">${L.sort((a, b) => b.ok - a.ok).map(l => `<div class="logro ${l.ok ? '' : 'no'}"><div class="l-ic">${l.ic}</div><b>${esc(l.n)}</b><small>${esc(l.d)}</small>${l.ok ? '<span class="chip ok">✓ Conseguido</span>' : `<div class="barra"><i style="width:${Math.min(100, l.v / l.obj * 100)}%"></i></div><small style="margin:4px 0 0">${Math.min(l.v, l.obj)} / ${l.obj}</small>`}</div>`).join('')}</div>
+  <div class="bloque" style="margin-top:16px"><h2>🧩 Tu colección</h2><div class="colecc-cats">${Mon.ORDEN.map(k => { const l = Mon.CAT[k].i, t = l.filter(it => tiene(k, it[0])).length; return `<div><span>${Mon.CAT[k].ic}</span><span>${Mon.CAT[k].n}</span><span>${t}/${l.length}</span><div class="barra"><i style="width:${t / l.length * 100}%"></i></div></div>`; }).join('')}</div></div>`);
+}
+
+/* ---------- Historial ---------- */
+function tHistorial(c) {
+  const u = A.yo.ult || [], sem = u.filter(m => m.tipo !== 'canje' && m.v > 0 && Date.now() - m.t < 7 * 864e5).reduce((s, m) => s + m.v, 0);
+  html(c, `<div class="saludo"><h1>Tu historial</h1><p>Esta semana has ganado ${pila(sem, 'estrella', 'estrellas')}</p></div><div class="bloque">${u.length ? `<ul class="lista-al">${u.map(filaUlt).join('')}</ul>` : '<div class="vacio"><b>Aún no hay nada</b>Aquí verás las estrellas que te den en clase.</div>'}</div>`);
+}
+
+/* ---------- Monstruo interactivo ---------- */
+function decir(t) { const e = $('#esc'); if (!e) return; e.querySelector('.bocadillo')?.remove(); const b = document.createElement('div'); b.className = 'bocadillo'; b.textContent = t; e.append(b); setTimeout(() => b.remove(), 2500); }
+function tocarMonstruo() { animar($('#esc'), Math.random() < .5 ? 'salta' : 'saluda'); Sonido.tocar('pop'); decir(FRASES[Math.floor(Math.random() * FRASES.length)]); }
+async function renombrar() {
+  const n = await pedir('Nombre de tu monstruo', { valor: A.yo.alias || '', etiqueta: 'Máximo 14 letras', max: 14, validar: v => !v ? 'Escribe un nombre' : '' });
+  if (!n || n === A.yo.alias) return;
+  A.yo.alias = n; pintarLado(); decir(`¡Me llamo ${n}!`);
+  Datos.renombrar(A.yo.uid, n).catch(errA);
+}
+
+/* ---------- Novedades en directo y bienvenida ---------- */
+const KV = () => 'aulasiurot_visto_' + A.user.uid;
+function bienvenida() {
+  let previo = null; try { previo = JSON.parse(localStorage.getItem(KV())); } catch (e) { }
+  const y = A.yo, ahora_ = { t: Date.now(), lv: Mon.nivel(y.total || 0) };
+  localStorage.setItem(KV(), JSON.stringify(ahora_));
+  if (!previo) { setTimeout(() => decir(`¡Hola! Soy ${y.alias || 'tu monstruo'}`), 600); return; }
+  const nuevos = (y.ult || []).filter(m => m.t > previo.t && m.tipo !== 'canje');
+  const gan = nuevos.filter(m => m.v > 0).reduce((s, m) => s + m.v, 0);
+  if (ahora_.lv > previo.lv) return setTimeout(() => subirNivel(previo.lv, ahora_.lv), 500);
+  if (gan > 0) setTimeout(() => { Sonido.tocar('tada'); confeti(90); animar($('#esc'), 'salta'); decir(`¡Has ganado ${gan} ⭐!`); toast(`Mientras no estabas: +${gan} estrellas`, { ic: '🌟', tipo: 'ok', ms: 4000 }); }, 600);
+  else setTimeout(() => decir('¡Qué alegría verte!'), 600);
+}
+function novedades(ant, y) {
+  const conocidas = new Set((ant.ult || []).map(m => m.id));
+  const nuevos = (y.ult || []).filter(m => !conocidas.has(m.id));
+  const lvA = Mon.nivel(ant.total || 0), lvN = Mon.nivel(y.total || 0);
+  nuevos.reverse().forEach((m, i) => setTimeout(() => {
+    if (m.tipo === 'canje') { toast(`Has canjeado: ${m.n}`, { ic: m.ic }); return; }
+    const e = $('#esc');
+    if (m.v > 0) { Sonido.tocar('pos'); animar(e, 'salta'); burbuja(e, '+' + m.v, 'oro'); decir(m.n + ' ' + (m.ic || '')); $('.pill-pts')?.classList.add('sube'); setTimeout(() => $('.pill-pts')?.classList.remove('sube'), 700); }
+    else { Sonido.tocar('neg'); animar(e, 'triste'); burbuja(e, String(m.v), 'neg'); decir('¡La próxima vez lo harás genial!'); toast(`Tu maestro ha anotado: ${m.n}`, { ic: m.ic }); }
+  }, i * 900));
+  if (lvN > lvA) setTimeout(() => subirNivel(lvA, lvN), nuevos.length * 900 + 300);
+  try { localStorage.setItem(KV(), JSON.stringify({ t: Date.now(), lv: lvN })); } catch (e) { }
+}
+function subirNivel(de, a) {
+  const nuevas = []; Mon.ORDEN.forEach(k => Mon.CAT[k].i.forEach(it => { const lv = Mon.nivel(reqTotal(k, it[0])); if (reqTotal(k, it[0]) && lv > de && lv <= a) nuevas.push(`${Mon.CAT[k].ic} ${it[1]}`); }));
+  Sonido.tocar('nivel'); confeti(220);
+  modal({ titulo: '', clase: 'pequeña', cuerpo: `<div class="subida"><div class="escena">${Mon.fondo(A.yo.cfg.fondo)}${Mon.svg({ ...A.yo.cfg, efecto: 'brillos' })}</div><h2>¡Nivel ${a}!</h2><p class="m-texto">Ahora eres <b>${Mon.NIVELES[a - 1][1]}</b>. ¡Enhorabuena!</p>${nuevas.length ? `<p style="font-weight:800;margin-bottom:4px">Nuevas piezas desbloqueadas:</p><div class="nuevas">${nuevas.map(n => `<span class="chip oro">${esc(n)}</span>`).join('')}</div>` : ''}</div>`, botones: [{ t: nuevas.length ? 'Ir al taller' : '¡Genial!', cls: 'pri', valor: nuevas.length ? 'taller' : true }] })
+    .then(v => { if (v === 'taller') irTab('taller'); });
+  setTimeout(() => animar($('.subida .escena'), 'salta'), 400);
+}
+
+</script>
+</body>
+</html>
