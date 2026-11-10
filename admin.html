@@ -445,6 +445,19 @@ table.tabla{width:100%;border-collapse:collapse;font-size:15px}
 }
 @media(max-width:520px){.habs{grid-template-columns:repeat(3,1fr);gap:8px}.hab{min-height:104px;font-size:13px;padding:10px 4px 8px}.hab .h-ic{width:48px;height:48px;font-size:26px}}
 
+/* Lista de alumnado en móvil: cada alumno es una tarjeta (así se ve siempre el botón ⋯) */
+@media(max-width:700px){
+  table.tabla-al,.tabla-al tbody,.tabla-al tr,.tabla-al td{display:block}
+  .tabla-al thead{display:none}
+  .tabla-al tr{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:12px 4px;border-bottom:1px solid var(--nube2)}
+  .tabla-al td{border:0;padding:0}
+  .tabla-al td.c-nom{flex:1 1 100%;display:flex;align-items:center;padding-right:56px}
+  .tabla-al td.c-nom b{font-size:16px}
+  .tabla-al td.c-menu{position:absolute;right:0;top:12px}
+  .tabla-al td[data-l]{font-size:14px}
+  .tabla-al td[data-l]::before{content:attr(data-l) ' ';font-size:11.5px;font-weight:900;color:var(--tinta2);text-transform:uppercase;letter-spacing:.03em;margin-right:2px}
+}
+
 </style>
 </head>
 <body data-app="maestro">
@@ -2011,7 +2024,7 @@ function admAlumnado(z) {
   let ver = false, lista = [];
   const tabla = () => {
     $('#al-n').textContent = lista.length;
-    html($('#al-tabla'), lista.length ? `<table class="tabla"><thead><tr><th>Alumno</th><th>Usuario</th><th>Clave</th><th>Puntos</th><th>Nivel</th><th></th></tr></thead><tbody>${lista.sort((a, b) => a.nombre.localeCompare(b.nombre)).map(a => `<tr><td><span class="escena mini">${Mon.fondo(a.cfg.fondo)}${Mon.svg(a.cfg, { anim: false })}</span>${esc(a.nombre)}</td><td><code>${esc(a.usuario)}</code></td><td><code>${ver ? esc(a.clave || '—') : '••••••'}</code></td><td>⭐ ${a.pts} <small style="color:var(--tinta2)">(${a.total || 0})</small></td><td>${Mon.nivel(a.total || 0)}</td><td><button class="btn sec chico" data-menu="${a.uid}">⋯</button></td></tr>`).join('')}</tbody></table>` : `<div class="vacio"><b>No hay alumnado aquí</b>${cl ? 'Importa la lista o añade alumnos uno a uno.' : ''}</div>`);
+    html($('#al-tabla'), lista.length ? `<table class="tabla tabla-al"><thead><tr><th>Alumno</th><th>Usuario</th><th>Clave</th><th>Puntos</th><th>Nivel</th><th></th></tr></thead><tbody>${lista.sort((a, b) => a.nombre.localeCompare(b.nombre)).map(a => `<tr><td class="c-nom"><span class="escena mini">${Mon.fondo(a.cfg.fondo)}${Mon.svg(a.cfg, { anim: false })}</span><b>${esc(a.nombre)}</b></td><td data-l="Usuario"><code>${esc(a.usuario)}</code></td><td data-l="Clave"><code>${ver ? esc(a.clave || '—') : '••••••'}</code></td><td data-l="Puntos">⭐ ${a.pts} <small style="color:var(--tinta2)">(${a.total || 0})</small></td><td data-l="Nivel">${Mon.nivel(a.total || 0)}</td><td class="c-menu"><button class="btn sec chico" data-menu="${a.uid}">⋯</button></td></tr>`).join('')}</tbody></table>` : `<div class="vacio"><b>No hay alumnado aquí</b>${cl ? 'Importa la lista o añade alumnos uno a uno.' : ''}</div>`);
     $$('[data-menu]').forEach(b => b.onclick = () => menuAlumno(lista.find(a => a.uid === b.dataset.menu)));
   };
   suscribir('adm-al', Datos.verAlumnos(E.admClase === '_sin' ? '' : E.admClase, l => { lista = l; tabla(); }, errorEscucha));
