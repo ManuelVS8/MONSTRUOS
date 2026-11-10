@@ -161,6 +161,11 @@ body:has(#compra) #instalar-ban{bottom:calc(86px + env(safe-area-inset-bottom))}
 @keyframes m-pet{50%{transform:translateY(-4px)}}
 @media(prefers-reduced-motion:reduce){.mon *{animation:none!important}}
 
+.mon.balancea .cuerpo{animation:m-wob .55s ease-in-out}
+@keyframes m-wob{0%,100%{transform:none}15%{transform:rotate(-9deg) translateY(-3px)}40%{transform:rotate(8deg)}65%{transform:rotate(-5deg)}85%{transform:rotate(3deg)}}
+.mon.huevo .cuerpo{animation:m-huevo 2.6s ease-in-out infinite}
+@keyframes m-huevo{0%,100%{transform:rotate(0)}50%{transform:rotate(-2deg) translateY(-2px)}}
+
 /* ===== App del maestro ===== */
 .app{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 .cab{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:10px 18px;background:rgba(12,30,74,.82);backdrop-filter:blur(12px);color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.15)}
@@ -736,11 +741,38 @@ const Mon = (() => {
     return `<radialGradient id="g${u}" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="${s.lt}"/><stop offset=".55" stop-color="${s.col}"/><stop offset="1" stop-color="${s.dk}"/></radialGradient>`;
   }
 
+
+  // Decoración del escenario (alfombra, pared y objeto) y el encogimiento del protagonista para dejarles sitio
+  function decoracion(c, opts) {
+    const ver = !opts.vb || opts.deco;
+    const alf = ver && c.alfombra !== 'ninguna' ? `<g transform="translate(0 -3)">${ALFOMBRA[c.alfombra]()}</g>` : '';
+    const par = ver && c.pared !== 'ninguna' ? `<g transform="translate(32 24)">${PARED[c.pared]()}</g>` : '';
+    const obj = ver && c.objeto !== 'ninguno' ? `<g transform="translate(26 198)"><ellipse cy="1" rx="18" ry="3" fill="#000" opacity=".16"/>${OBJETO[c.objeto]()}</g>` : '';
+    return { alf, par, obj, reduce: par || obj ? ' transform="translate(100 196) scale(.84) translate(-100 -196)"' : '' };
+  }
+  // Huevo (antes de nacer). opts.grietas: 0-5
+  function svgHuevo(c, opts) {
+    const u = 'e' + (++seq), col = COL[c.color] || COL.violeta;
+    const s = { u, id: c.color, col, lt: mix(col, 255, .45), dk: mix(col, 0, .28), claro: lum(col) > .66 };
+    if (c.color === 'oro') { s.dk = '#c98a10'; s.claro = true; }
+    if (c.color === 'arcoiris') s.dk = '#d9506a';
+    const line = mix(col, 0, .42), n = Math.max(0, Math.min(5, opts.grietas | 0));
+    const d = decoracion(c, opts);
+    const P = 'M100 56C138 56 162 108 162 146C162 178 136 196 100 196C64 196 38 178 38 146C38 108 62 56 100 56z';
+    const manchas = [[76, 104, 8], [124, 120, 7], [86, 154, 9], [128, 158, 7], [106, 86, 5], [64, 136, 5]].map(([x, y, r]) => `<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${f1(r * .8)}" fill="${s.claro ? '#fff' : s.lt}" opacity=".5"/>`).join('');
+    const GR = ['', 'M98 58l5 9-7 6 4 8', 'M98 58l5 9-7 6 4 8-6 7 5 8M103 67l10 3', 'M98 58l5 9-7 6 4 8-6 7 5 8-3 8M103 67l10 3M96 73l-11 2-3 8', 'M98 58l5 9-7 6 4 8-6 7 5 8-3 8M103 67l10 3M96 73l-11 2-3 8M101 90l12 4 6 9M94 96l-12 5', 'M40 120l13-10 12 12 12-12 12 12 12-12 12 12 12-12 12 12 11-10M98 58l5 9-7 6 4 8-6 7 5 8'];
+    const grieta = n ? `${n >= 4 ? `<path d="${GR[n]}" fill="none" stroke="#fff3a0" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>` : ''}<path d="${GR[n]}" fill="none" stroke="${line}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>` : '';
+    return `<svg viewBox="${opts.vb || '0 -34 200 250'}" class="mon huevo${opts.anim === false ? ' quieto' : ''}${opts.vb ? ' zoom' : ''}" aria-hidden="true" focusable="false"><defs>${relleno(s)}<clipPath id="c${u}"><path d="${P}"/></clipPath></defs>
+${d.alf}${d.par}${d.obj}<g${d.reduce}><g class="cuerpo"><ellipse cx="100" cy="196" rx="58" ry="8" fill="#000" opacity=".16"/>
+<path d="${P}" fill="url(#g${u})" stroke="${line}" stroke-width="2.5"/><g clip-path="url(#c${u})">${manchas}<ellipse cx="72" cy="${88}" rx="20" ry="9" fill="#fff" opacity=".38" transform="rotate(-28 72 88)"/><ellipse cx="100" cy="190" rx="44" ry="20" fill="#000" opacity=".08"/></g>${grieta}</g></g></svg>`;
+  }
+
   let seq = 0;
   /* cfg: configuración; opts: {anim:true|false} */
   function svg(cfg, opts = {}) {
     const c = Object.assign({}, BASE, cfg || {});
     ORDEN.forEach(k => { if (!item(k, c[k])) c[k] = BASE[k]; });
+    if (c.huevo) return svgHuevo(c, opts);
     const u = 'm' + (++seq), g = SH[c.forma], col = COL[c.color];
     const s = { u, id: c.color, col, lt: mix(col, 255, .45), dk: mix(col, 0, .28), claro: lum(col) > .66 };
     if (c.color === 'oro') { s.dk = '#c98a10'; s.claro = true; }
@@ -754,12 +786,7 @@ const Mon = (() => {
     const galaxia = c.color === 'galaxia' ? (() => { const r = rng(7); let o = ''; for (let i = 0; i < 26; i++) o += `<circle cx="${f1(25 + r() * 150)}" cy="${f1(g.t + r() * (190 - g.t))}" r="${f1(.6 + r() * 1.6)}" fill="#fff" opacity="${f1(.5 + r() * .5)}"/>`; return o; })() : '';
     const aura = c.efecto === 'aura' ? `<ellipse class="fx-pulse" cx="100" cy="${(g.t + 190) / 2}" rx="98" ry="${(190 - g.t) / 2 + 30}" fill="url(#au${u})"/>` : '';
     const pet = PET[c.mascota]();
-    // Decoración: el monstruo se encoge un poco para dejar sitio a los objetos (cabe en la misma escena)
-    const verDeco = !opts.vb || opts.deco;
-    const alf = verDeco && c.alfombra !== 'ninguna' ? `<g transform="translate(0 -3)">${ALFOMBRA[c.alfombra]()}</g>` : '';
-    const par = verDeco && c.pared !== 'ninguna' ? `<g transform="translate(32 24)">${PARED[c.pared]()}</g>` : '';
-    const obj = verDeco && c.objeto !== 'ninguno' ? `<g transform="translate(26 198)"><ellipse cy="1" rx="18" ry="3" fill="#000" opacity=".16"/>${OBJETO[c.objeto]()}</g>` : '';
-    const reduce = par || obj ? ' transform="translate(100 196) scale(.84) translate(-100 -196)"' : '';
+    const { alf, par, obj, reduce } = decoracion(c, opts);
     return `<svg viewBox="${opts.vb || '0 -34 200 250'}" class="mon${opts.anim === false ? ' quieto' : ''}${opts.vb ? ' zoom' : ''}" aria-hidden="true" focusable="false"><defs>${relleno(s)}<radialGradient id="au${u}"><stop offset=".45" stop-color="#ffe066" stop-opacity=".75"/><stop offset="1" stop-color="#ffe066" stop-opacity="0"/></radialGradient><mask id="mk${u}"><rect x="0" y="-40" width="200" height="260" fill="#fff"/><ellipse cx="100" cy="${f + 18}" rx="56" ry="47" fill="#000"/></mask><clipPath id="c${u}"><path d="${g.p}"/></clipPath></defs>
 ${alf}${par}${obj}<g${reduce}><g class="cuerpo">${aura}<ellipse cx="100" cy="196" rx="62" ry="8" fill="#000" opacity=".16"/>
 ${c.comp === 'capa' ? capaTras(s, g) : ''}${delante ? '' : head}
@@ -914,7 +941,7 @@ function confeti(n = 120, origen) {
 }
 
 /* ---------- Animar un monstruo ---------- */
-function animar(el, clase = 'salta') { const m = el && (el.matches?.('.mon') ? el : el.querySelector('.mon')); if (!m) return; m.classList.remove('salta', 'saluda', 'triste'); void m.getBoundingClientRect(); m.classList.add(clase); setTimeout(() => m.classList.remove(clase), 1600); }
+function animar(el, clase = 'salta') { const m = el && (el.matches?.('.mon') ? el : el.querySelector('.mon')); if (!m) return; m.classList.remove('salta', 'saluda', 'triste', 'balancea'); void m.getBoundingClientRect(); m.classList.add(clase); setTimeout(() => m.classList.remove(clase), 1600); }
 function burbuja(el, texto, tipo = 'pos') {
   if (!el) return; const r = el.getBoundingClientRect(), b = document.createElement('div');
   b.className = 'burbuja-pts ' + tipo; b.textContent = texto; b.style.left = (r.left + r.width / 2) + 'px'; b.style.top = (r.top + r.height * .3) + 'px';
@@ -970,7 +997,9 @@ const Instalar = (() => {
 const FB_VER = '12.6.0';
 const ahora = () => Date.now();
 const limpiaUsuario = u => (u || '').toString().trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9._-]/g, '');
-const nuevoAlumnoDoc = (a, clase) => ({ usuario: a.usuario, clave: a.clave, nombre: a.nombre, clase, pts: 0, total: 0, neg: 0, cfg: Mon.aleatorio(), own: [], alias: Mon.nombreAzar(), ult: [], cnt: {}, creado: ahora() });
+// Los alumnos que aún no han hecho nacer a su monstruo se ven como huevo (cfg.huevo es solo de lectura, nunca se guarda).
+const conHuevo = a => { a.cfg = { ...a.cfg, huevo: a.nacido !== true }; return a; };
+const nuevoAlumnoDoc = (a, clase) => ({ usuario: a.usuario, clave: a.clave, nombre: a.nombre, clase, pts: 0, total: 0, neg: 0, cfg: Mon.aleatorio(), own: [], alias: Mon.nombreAzar(), nacido: false, ult: [], cnt: {}, creado: ahora() });
 // Entrada del historial corto que ve el alumno
 const entradaUlt = m => ({ id: m.id, t: m.t, n: m.n, ic: m.ic, v: m.v, tipo: m.tipo });
 const ULT_MAX = 25;
@@ -993,6 +1022,7 @@ function crearDemo() {
       lista.forEach((n, i) => {
         const u = 'demo-' + id + '-' + i, us = limpiaUsuario(n.split(' ')[0] + n.split(' ')[1][0]);
         const a = nuevoAlumnoDoc({ usuario: us, clave: '123abc', nombre: n }, id);
+        a.nacido = !(id === 'demoA' && i === 7);
         d.alumnos[u] = a;
       });
       // historial de ejemplo de las últimas 3 semanas
@@ -1047,8 +1077,8 @@ function crearDemo() {
     verMaestros(cb) { return sub(() => cb(Object.entries(D.maestros).map(([uid, m]) => ({ uid, ...copia(m) })))); },
     verClases(cb) { return sub(() => cb(Object.entries(D.clases).map(([id, c]) => { const { movs, ...r } = c; return { id, ...copia(r) }; }).sort((a, b) => a.nombre.localeCompare(b.nombre)))); },
     verClase(id, cb) { return sub(() => { const c = D.clases[id]; if (!c) return cb(null); const { movs, ...r } = c; cb({ id, ...copia(r) }); }); },
-    verAlumnos(claseId, cb) { return sub(() => cb(Object.entries(D.alumnos).filter(([, a]) => claseId === '*' || a.clase === claseId).map(([uid, a]) => ({ uid, ...copia(a) })))); },
-    verAlumno(uid, cb) { return sub(() => cb(D.alumnos[uid] ? { uid, ...copia(D.alumnos[uid]) } : null)); },
+    verAlumnos(claseId, cb) { return sub(() => cb(Object.entries(D.alumnos).filter(([, a]) => claseId === '*' || a.clase === claseId).map(([uid, a]) => conHuevo({ uid, ...copia(a) })))); },
+    verAlumno(uid, cb) { return sub(() => cb(D.alumnos[uid] ? conHuevo({ uid, ...copia(D.alumnos[uid]) }) : null)); },
     verMovs(claseId, desde, cb) { return sub(() => cb(copia((D.clases[claseId]?.movs || []).filter(m => m.t >= desde)))); },
     async darPuntos({ clase, alumnos, hab, maestro, nota }) {
       const lote = [];
@@ -1088,7 +1118,7 @@ function crearDemo() {
     async cambiarClave(a, nueva) { D.alumnos[a.uid].clave = nueva; guardar(); },
     async borrarAlumno(a) { delete D.alumnos[a.uid]; guardar(); },
     async guardarCatalogo(mapas) { Object.assign(D.sistema, mapas); guardar(); },
-    async reiniciar(claseId, todo) { Object.values(D.alumnos).forEach(a => { if (a.clase !== claseId) return; a.pts = 0; a.neg = 0; a.ult = []; a.cnt = {}; if (todo) { a.total = 0; a.own = []; a.cfg = Mon.aleatorio(); } }); D.clases[claseId].movs = []; if (D.clases[claseId].meta) D.clases[claseId].meta.prog = 0; guardar(); },
+    async reiniciar(claseId, todo) { Object.values(D.alumnos).forEach(a => { if (a.clase !== claseId) return; a.pts = 0; a.neg = 0; a.ult = []; a.cnt = {}; if (todo) { a.total = 0; a.own = []; a.cfg = Mon.aleatorio(); a.nacido = false; } }); D.clases[claseId].movs = []; if (D.clases[claseId].meta) D.clases[claseId].meta.prog = 0; guardar(); },
     async exportar() { return copia(D); },
     // alumnado
     async comprar(uidA, clave) {
@@ -1098,7 +1128,8 @@ function crearDemo() {
       a.pts -= p; a.own.push(clave); guardar();
     },
     async guardarAspecto(uidA, cfg) { D.alumnos[uidA].cfg = copia(cfg); guardar(); },
-    async renombrar(uidA, alias) { D.alumnos[uidA].alias = alias; guardar(); }
+    async renombrar(uidA, alias) { D.alumnos[uidA].alias = alias; guardar(); },
+    async nacer(uidA, alias) { Object.assign(D.alumnos[uidA], { nacido: true, alias }); guardar(); }
   };
 }
 
@@ -1152,11 +1183,11 @@ function crearFirebase(cfg) {
       return this.perfilMaestro(u.uid);
     },
     verSistema(cb, err) { return F.onSnapshot(F.doc(db, 'sistema', 'config'), s => cb(s.exists() ? s.data() : null), err); },
-    verMaestro(uid, cb, err) { return F.onSnapshot(F.doc(db, 'maestros', uid), s => cb(s.exists() ? { uid, ...s.data() } : null), err); },
+    verMaestro(uid, cb, err) { return F.onSnapshot(F.doc(db, 'maestros', uid), s => cb(s.exists() ? conHuevo({ uid, ...s.data() }) : null), err); },
     verMaestros(cb, err) { return F.onSnapshot(F.collection(db, 'maestros'), s => cb(snapLista(s)), err); },
     verClases(cb, err) { return F.onSnapshot(F.collection(db, 'clases'), s => cb(snapLista(s).sort((a, b) => a.nombre.localeCompare(b.nombre))), err); },
     verClase(id, cb, err) { return F.onSnapshot(F.doc(db, 'clases', id), s => cb(s.exists() ? { id, ...s.data() } : null), err); },
-    verAlumnos(claseId, cb, err) { const q = claseId === '*' ? F.collection(db, 'alumnos') : F.query(F.collection(db, 'alumnos'), F.where('clase', '==', claseId)); return F.onSnapshot(q, s => cb(snapLista(s)), err); },
+    verAlumnos(claseId, cb, err) { const q = claseId === '*' ? F.collection(db, 'alumnos') : F.query(F.collection(db, 'alumnos'), F.where('clase', '==', claseId)); return F.onSnapshot(q, s => cb(snapLista(s).map(conHuevo)), err); },
     verAlumno(uid, cb, err) { return F.onSnapshot(F.doc(db, 'alumnos', uid), s => cb(s.exists() ? { uid, ...s.data() } : null), err); },
     verMovs(claseId, desde, cb, err) { const q = F.query(F.collection(db, 'clases', claseId, 'movs'), F.where('t', '>=', desde), F.orderBy('t', 'desc'), F.limit(4000)); return F.onSnapshot(q, s => cb(s.docs.map(d => ({ id: d.id, ...d.data() }))), err); },
     async darPuntos({ clase, alumnos, hab, maestro, nota }) {
@@ -1244,7 +1275,7 @@ function crearFirebase(cfg) {
     async reiniciar(claseId, todo) {
       const s = await F.getDocs(F.query(F.collection(db, 'alumnos'), F.where('clase', '==', claseId)));
       let b = lote(), n = 0; const enviar = async () => { await b.commit(); b = lote(); n = 0; };
-      for (const d of s.docs) { const up = { pts: 0, neg: 0, ult: [], cnt: {} }; if (todo) Object.assign(up, { total: 0, own: [], cfg: Mon.aleatorio() }); b.update(d.ref, up); if (++n >= 400) await enviar(); }
+      for (const d of s.docs) { const up = { pts: 0, neg: 0, ult: [], cnt: {} }; if (todo) Object.assign(up, { total: 0, own: [], cfg: Mon.aleatorio(), nacido: false }); b.update(d.ref, up); if (++n >= 400) await enviar(); }
       const ms = await F.getDocs(F.collection(db, 'clases', claseId, 'movs'));
       for (const d of ms.docs) { b.delete(d.ref); if (++n >= 400) await enviar(); }
       const cd = await F.getDoc(F.doc(db, 'clases', claseId)); if (cd.exists() && cd.data().meta) b.update(F.doc(db, 'clases', claseId), { 'meta.prog': 0 }); await enviar();
@@ -1267,7 +1298,8 @@ function crearFirebase(cfg) {
       });
     },
     async guardarAspecto(uidA, cfg) { await F.updateDoc(F.doc(db, 'alumnos', uidA), { cfg }); },
-    async renombrar(uidA, alias) { await F.updateDoc(F.doc(db, 'alumnos', uidA), { alias }); }
+    async renombrar(uidA, alias) { await F.updateDoc(F.doc(db, 'alumnos', uidA), { alias }); },
+    async nacer(uidA, alias) { await F.updateDoc(F.doc(db, 'alumnos', uidA), { nacido: true, alias }); }
   };
   return api;
 }
@@ -2101,7 +2133,7 @@ async function menuAlumno(a) {
   if (!a) return;
   const op = await modal({
     titulo: esc(a.nombre), clase: 'pequeña',
-    cuerpo: `<div style="display:flex;flex-direction:column;gap:8px">${[['nombre', '✏️ Cambiar nombre'], ['clase', '🔁 Cambiar de clase'], ['clave', '🔑 Cambiar clave'], ['aspecto', '🎨 Restablecer monstruo (conserva sus piezas)'], ['borrar', '🗑️ Borrar alumno']].map(([k, t]) => `<button class="btn ${k === 'borrar' ? 'peligro' : 'sec'}" data-o="${k}" style="justify-content:flex-start">${t}</button>`).join('')}</div>`,
+    cuerpo: `<div style="display:flex;flex-direction:column;gap:8px">${[['nombre', '✏️ Cambiar nombre'], ...(a.cfg && a.cfg.huevo ? [['nacer', '🐣 Hacer nacer el huevo']] : []), ['clase', '🔁 Cambiar de clase'], ['clave', '🔑 Cambiar clave'], ['aspecto', '🎨 Restablecer monstruo (conserva sus piezas)'], ['borrar', '🗑️ Borrar alumno']].map(([k, t]) => `<button class="btn ${k === 'borrar' ? 'peligro' : 'sec'}" data-o="${k}" style="justify-content:flex-start">${t}</button>`).join('')}</div>`,
     alAbrir: (c, cerrar) => c.querySelectorAll('[data-o]').forEach(b => b.onclick = () => cerrar(b.dataset.o))
   });
   try {
@@ -2110,6 +2142,7 @@ async function menuAlumno(a) {
       const id = await modal({ titulo: 'Mover a…', clase: 'pequeña', cuerpo: `<div class="clases-lista" style="flex-direction:column">${E.todasClases.filter(c => c.id !== a.clase).map(c => `<button data-id="${c.id}" style="text-align:left">${esc(c.nombre)}</button>`).join('')}</div>`, alAbrir: (c, cerrar) => c.querySelectorAll('[data-id]').forEach(b => b.onclick = () => cerrar(b.dataset.id)) });
       if (id) { await Datos.actualizarAlumno(a.uid, { clase: id }); toast('Alumno cambiado de clase', { tipo: 'ok' }); }
     }
+    if (op === 'nacer') { await Datos.actualizarAlumno(a.uid, { nacido: true }); toast(`${a.nombre.split(' ')[0]} ya tiene su monstruo`, { tipo: 'ok', ic: '🐣' }); }
     if (op === 'clave') cambiarClave(a);
     if (op === 'aspecto' && await confirmar('Su monstruo volverá al aspecto inicial. Las piezas compradas siguen siendo suyas.', { si: 'Restablecer' })) await Datos.actualizarAlumno(a.uid, { cfg: { ...Mon.BASE, color: a.cfg.color } });
     if (op === 'borrar' && await confirmar(`Se borrará a <b>${esc(a.nombre)}</b>, su monstruo y sus puntos. No se puede deshacer.`, { si: 'Borrar', peligro: true })) { const aviso = await Datos.borrarAlumno(a); toast('Alumno borrado'); if (aviso) avisar(aviso); }
