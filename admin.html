@@ -505,10 +505,13 @@ const Mon = (() => {
     comp: { n: 'Complemento', ic: '🎀', i: [['ninguno', 'Ninguno', 0], ['pajarita', 'Pajarita', 20], ['gafas', 'Gafas', 25], ['sol', 'Gafas de sol', 35], ['bufanda', 'Bufanda', 35], ['collar', 'Collar', 30], ['medalla', 'Medalla', 50, 3], ['capa', 'Capa de héroe', 80, 5]] },
     efecto: { n: 'Efecto', ic: '✨', i: [['ninguno', 'Ninguno', 0], ['brillos', 'Brillos', 40], ['burbujas', 'Burbujas', 40], ['notas', 'Música', 50], ['corazones', 'Corazones', 50], ['aura', 'Aura dorada', 120, 9]] },
     mascota: { n: 'Mascota', ic: '🐣', i: [['ninguna', 'Ninguna', 0], ['pollito', 'Pollito', 60], ['estrellita', 'Estrellita', 60], ['fantasmin', 'Fantasmín', 70], ['pulpito', 'Pulpito', 80, 4], ['blandi', 'Blandi', 90, 6]] },
-    fondo: { n: 'Fondo', ic: '🏞️', i: [['aula', 'Aula', 0], ['cielo', 'Cielo', 10], ['selva', 'Selva', 20], ['playa', 'Playa', 25], ['atardecer', 'Atardecer', 30], ['nieve', 'Nieve', 30], ['mar', 'Fondo del mar', 40], ['espacio', 'Espacio', 50], ['arcoiris', 'Arcoíris', 70, 5]] }
+    fondo: { n: 'Fondo', ic: '🏞️', i: [['aula', 'Aula', 0], ['cielo', 'Cielo', 10], ['selva', 'Selva', 20], ['playa', 'Playa', 25], ['atardecer', 'Atardecer', 30], ['nieve', 'Nieve', 30], ['mar', 'Fondo del mar', 40], ['espacio', 'Espacio', 50], ['arcoiris', 'Arcoíris', 70, 5]] },
+    alfombra: { n: 'Alfombra', ic: '🧶', i: [['ninguna', 'Sin alfombra', 0], ['redonda', 'Redonda', 10], ['aros', 'De aros', 15], ['cesped', 'Césped', 20], ['estrellas', 'Estrellada', 30], ['corazon', 'Corazón', 35], ['arcoiris', 'Arcoíris', 50], ['nube', 'Nube blanda', 60, 3], ['real', 'Alfombra real', 90, 5]] },
+    objeto: { n: 'Objeto', ic: '🪴', i: [['ninguno', 'Ninguno', 0], ['planta', 'Planta', 15], ['libros', 'Libros', 15], ['balon', 'Balón', 20], ['puf', 'Puf', 25], ['lampara', 'Lámpara', 30], ['globo', 'Globo terráqueo', 35], ['telescopio', 'Telescopio', 45], ['cofre', 'Cofre del tesoro', 55, 3], ['trofeo', 'Trofeo', 80, 5]] },
+    pared: { n: 'Pared', ic: '🖼️', i: [['ninguna', 'Sin adorno', 0], ['cuadro', 'Cuadro', 10], ['reloj', 'Reloj', 15], ['ventana', 'Ventana', 20], ['bandera', 'Banderines', 20], ['movil', 'Móvil de estrellas', 25], ['pizarra', 'Pizarrita', 30], ['diploma', 'Diploma', 40], ['luna', 'Luna', 60, 4]] }
   };
   const ORDEN = Object.keys(CAT);
-  const BASE = { color: 'violeta', forma: 'blob', patron: 'ninguno', ojos: 'dos', boca: 'sonrisa', cabeza: 'ninguna', sombrero: 'ninguno', comp: 'ninguno', efecto: 'ninguno', mascota: 'ninguna', fondo: 'aula' };
+  const BASE = { color: 'violeta', forma: 'blob', patron: 'ninguno', ojos: 'dos', boca: 'sonrisa', cabeza: 'ninguna', sombrero: 'ninguno', comp: 'ninguno', efecto: 'ninguno', mascota: 'ninguna', fondo: 'aula', alfombra: 'ninguna', objeto: 'ninguno', pared: 'ninguna' };
 
   /* ---------- Niveles (por puntos ganados en total) ---------- */
   const NIVELES = [
@@ -658,6 +661,46 @@ const Mon = (() => {
     blandi: () => `<ellipse cx="0" cy="17" rx="17" ry="3" fill="#0002"/><path d="M-18 16Q-20-16 0-17Q20-16 18 16Q0 20-18 16z" fill="#6fe07a" fill-opacity=".9" stroke="#2f9a3e" stroke-width="2"/><path d="M-10-10q4-4 9-3" stroke="#fff" stroke-width="3" opacity=".6" stroke-linecap="round" fill="none"/><circle cx="-6" cy="0" r="4" fill="#fff" stroke="${INK}" stroke-width="1.5"/><circle cx="6" cy="0" r="4" fill="#fff" stroke="${INK}" stroke-width="1.5"/><circle cx="-5.5" cy="1" r="2" fill="${INK}"/><circle cx="6.5" cy="1" r="2" fill="${INK}"/><path d="M-4 8q4 4 8 0" stroke="${INK}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
   };
 
+
+  /* ---------- Decoración del escenario: alfombra (suelo), objeto (suelo, izquierda) y pared (arriba, izquierda) ---------- */
+  const tap = (fill, line, inner = '') => `<ellipse cx="100" cy="203.5" rx="88" ry="14" fill="${mix(fill, 0, .3)}"/><ellipse cx="100" cy="200" rx="88" ry="14" fill="${fill}" stroke="${line}" stroke-width="2"/>${inner}`;
+  const anillo = (rx, c, w = 2.5) => `<ellipse cx="100" cy="200" rx="${rx}" ry="${f1(rx * 14 / 88)}" fill="none" stroke="${c}" stroke-width="${w}"/>`;
+  const ALFOMBRA = {
+    ninguna: () => '',
+    redonda: () => tap('#ef5b6e', '#a52b3d', anillo(68, '#ffd1d8') + `<ellipse cx="100" cy="200" rx="42" ry="6.5" fill="#ff8a9a"/>`),
+    aros: () => tap('#3b82f6', '#1e4fb0', anillo(68, '#fff', 4) + anillo(46, '#ffd23a', 4) + anillo(24, '#fff', 3)),
+    cesped: () => tap('#5fcf5a', '#2f9a3e', [[40, 199], [62, 205], [84, 197], [108, 205], [132, 198], [156, 204], [174, 199], [96, 200], [70, 196], [146, 194]].map(([x, y]) => `<path d="M${x} ${y}l-2-6 2.5 3 2-5 1.5 6" fill="none" stroke="#2f9a3e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`).join('')),
+    estrellas: () => tap('#27307a', '#161c52', [[44, 200, 5], [72, 205, 4], [100, 198, 6], [130, 205, 4.5], [160, 200, 5], [86, 204, 3], [120, 196, 3]].map(([x, y, r]) => `<polygon points="${star(x, y, r)}" fill="#ffd23a"/>`).join('')),
+    corazon: () => tap('#ffb3cc', '#d24a7e', `<path transform="translate(100 200) scale(58 24)" d="${HEART}" fill="#ff4f86" stroke="#c4134a" stroke-width=".05"/>`),
+    arcoiris: () => tap('#ff5d5d', '#c93a3a', ['#ffa24a', '#ffe14a', '#5fcf5f', '#4aa8ff', '#9a6cf0'].map((c, i) => { const rx = 76 - i * 15; return `<ellipse cx="100" cy="200" rx="${rx}" ry="${f1(rx * 14 / 88)}" fill="${c}"/>`; }).join('')),
+    nube: () => tap('#f4f9ff', '#b8cbe8', [[48, 199, 16, 5.5], [78, 205, 18, 5.5], [112, 196, 20, 6], [146, 204, 17, 5.5], [168, 198, 12, 4.5], [100, 203, 22, 5]].map(([x, y, rx, ry]) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#fff" stroke="#dbe7f7" stroke-width="1"/>`).join('')),
+    real: () => tap('#8b1a2b', '#e0a812', anillo(70, '#ffd23a', 3.5) + anillo(52, '#ffd23a', 1.5) + [[100, 200], [64, 200], [136, 200]].map(([x, y]) => `<polygon points="${star(x, y, 6, 2.2, 4)}" fill="#ffd23a"/>`).join('')),
+  };
+  const OBJETO = {
+    ninguno: () => '',
+    planta: () => `<path d="M0-16C-14-22-16-36-8-42C-4-34-2-26 0-16z" fill="#4fbf5a" stroke="#2f8a3c" stroke-width="2"/><path d="M0-16C14-22 16-36 8-42C4-34 2-26 0-16z" fill="#4fbf5a" stroke="#2f8a3c" stroke-width="2"/><path d="M0-16C-6-30-4-44 0-52C4-44 6-30 0-16z" fill="#6fe07a" stroke="#2f8a3c" stroke-width="2"/><path d="M-11-16h22l-3 16h-16z" fill="#d9774a" stroke="#a24f2a" stroke-width="2" stroke-linejoin="round"/>`,
+    libros: () => `<rect x="-17" y="-10" width="34" height="10" rx="2" fill="#4a7de8" stroke="#2a4fa8" stroke-width="2"/><rect x="-14" y="-20" width="30" height="10" rx="2" fill="#ef5b6e" stroke="#a52b3d" stroke-width="2"/><rect x="-16" y="-29" width="28" height="9" rx="2" fill="#ffd23a" stroke="#b8860b" stroke-width="2"/><path d="M-12-5h6M-8-15h6M-10-24h6" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"/>`,
+    balon: () => `<circle cy="-15" r="15" fill="#fff" stroke="${INK}" stroke-width="2"/><polygon points="${star(0, -15, 6, 6, 5)}" fill="${INK}"/><path d="M0-21V-27M-6-13L-13-16M6-13L13-16M-4-9L-8-3M4-9L8-3" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>`,
+    puf: () => `<path d="M-17-4C-19-18-10-27 0-27S19-18 17-4Q0 3-17-4z" fill="#8b5cf6" stroke="#5a32c0" stroke-width="2" stroke-linejoin="round"/><ellipse cx="-5" cy="-19" rx="7" ry="3" fill="#fff" opacity=".35" transform="rotate(-20 -5 -19)"/><circle cy="-23" r="2" fill="#5a32c0"/>`,
+    lampara: () => `<ellipse cy="-2" rx="10" ry="3.2" fill="#6b7280"/><rect x="-1.6" y="-44" width="3.2" height="42" fill="#6b7280"/><ellipse cy="-34" rx="20" ry="8" fill="#fff3b0" opacity=".45"/><path d="M-13-38L-8-54h16l5 16z" fill="#ffd966" stroke="#c9a010" stroke-width="2" stroke-linejoin="round"/>`,
+    globo: () => `<ellipse cy="-2" rx="11" ry="3.2" fill="#b9772e"/><path d="M-15-30Q-21-8 0-4" fill="none" stroke="#b9772e" stroke-width="3" stroke-linecap="round"/><circle cy="-26" r="15" fill="#4aa8ff" stroke="#1e6fc0" stroke-width="2"/><path d="M-9-32q4-6 9-2 2 6-4 7-6 2-5-5zM3-23q6-2 8 3-3 6-8 2z" fill="#5fcf5a"/><ellipse cx="-5" cy="-33" rx="4" ry="2" fill="#fff" opacity=".4"/>`,
+    telescopio: () => `<path d="M-3-24L-14 0M-3-24L11 0M-3-24L-1 0" stroke="#7a5a2a" stroke-width="3" stroke-linecap="round"/><g transform="rotate(-32 -3 -26)"><rect x="-20" y="-32" width="38" height="11" rx="3" fill="#3b82f6" stroke="#1e4fb0" stroke-width="2"/><rect x="14" y="-34" width="9" height="15" rx="2" fill="#1e4fb0"/><rect x="-14" y="-32" width="5" height="11" fill="#ffd23a"/></g>`,
+    cofre: () => `<rect x="-17" y="-20" width="34" height="20" rx="3" fill="#a8672a" stroke="#6e3f14" stroke-width="2"/><path d="M-17-20Q-17-34 0-34T17-20z" fill="#c4813a" stroke="#6e3f14" stroke-width="2" stroke-linejoin="round"/><rect x="-3.5" y="-34" width="7" height="34" fill="#ffd23a" stroke="#b8860b" stroke-width="1.5"/><rect x="-4" y="-25" width="8" height="9" rx="1.5" fill="#ffe27a" stroke="#b8860b" stroke-width="1.5"/><g class="fx-tw"><polygon points="${star(15, -38, 4.5, 1.8, 4)}" fill="#ffe27a"/></g><g class="fx-tw" style="animation-delay:.9s"><polygon points="${star(-14, -40, 3.2, 1.3, 4)}" fill="#fff"/></g>`,
+    trofeo: () => `<path d="M-12-14q-11 0-9-9t11-9M12-14q11 0 9-9t-11-9" fill="none" stroke="#e0a812" stroke-width="3" transform="translate(0 -12)"/><path d="M-13-48h26c0 15-4 23-13 25-9-2-13-10-13-25z" fill="#ffd23a" stroke="#b8860b" stroke-width="2" stroke-linejoin="round"/><rect x="-3" y="-23" width="6" height="12" fill="#e0a812"/><rect x="-12" y="-11" width="24" height="11" rx="2" fill="#8b5a2b" stroke="#5a3a18" stroke-width="2"/><polygon points="${star(0, -37, 6)}" fill="#fff" opacity=".85"/>`,
+  };
+  const PARED = {
+    ninguna: () => '',
+    cuadro: () => `<rect x="-20" y="-16" width="40" height="32" rx="2" fill="#fff" stroke="#8b5a2b" stroke-width="4"/><rect x="-16" y="-12" width="32" height="24" fill="#8fd3ff"/><path d="M-16 12V4Q-6-6 4 4T16 2v10z" fill="#5fcf5a"/><circle cx="8" cy="-4" r="4" fill="#ffd23a"/>`,
+    reloj: () => `<circle r="17" fill="#fff" stroke="${INK}" stroke-width="3"/><path d="M0-13v3M0 10v3M-13 0h3M10 0h3" stroke="${INK}" stroke-width="2" stroke-linecap="round"/><path d="M0 0V-9M0 0L6 3" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/><circle r="2" fill="#ef5b6e"/>`,
+    ventana: () => `<rect x="-17" y="-21" width="34" height="42" rx="3" fill="#8fd3ff" stroke="#b9772e" stroke-width="4"/><path d="M0-21V21M-17 0H17" stroke="#b9772e" stroke-width="3"/><ellipse cx="-8" cy="-9" rx="6" ry="3" fill="#fff"/><circle cx="9" cy="9" r="3" fill="#ffd23a"/>`,
+    bandera: () => `<path d="M-24-12Q0 4 24-12" fill="none" stroke="#7a5a2a" stroke-width="1.8"/>${[[-18, -8.5, '#ef5b6e'], [-9, -4.5, '#ffd23a'], [0, -3, '#5fcf5f'], [9, -4.5, '#4aa8ff'], [18, -8.5, '#ff7ab6']].map(([x, y, c]) => `<polygon points="${x - 5},${y} ${x + 5},${y} ${x},${y + 13}" fill="${c}" stroke="#0002" stroke-width="1"/>`).join('')}`,
+    movil: () => `<path d="M-20-20H20" stroke="#7a5a2a" stroke-width="2.5" stroke-linecap="round"/><path d="M-13-20V-6M0-20V10M13-20V-1" stroke="#7a5a2a" stroke-width="1.5"/><polygon points="${star(-13, -2, 7)}" fill="#ffd23a" stroke="#b8860b" stroke-width="1.5" stroke-linejoin="round"/><polygon points="${star(0, 15, 8)}" fill="#ff7ab6" stroke="#c4306e" stroke-width="1.5" stroke-linejoin="round"/><polygon points="${star(13, 4, 7)}" fill="#4aa8ff" stroke="#1e6fc0" stroke-width="1.5" stroke-linejoin="round"/>`,
+    pizarra: () => `<rect x="-22" y="-16" width="44" height="30" rx="2" fill="#2f5d50" stroke="#b9772e" stroke-width="3.5"/><rect x="-19" y="14" width="38" height="3.5" rx="1" fill="#b9772e"/><text x="0" y="1" text-anchor="middle" font-family="Baloo 2,Nunito,sans-serif" font-weight="800" font-size="13" fill="#fff">¡Hola!</text><path d="M-12 8h24" stroke="#fff" stroke-opacity=".6" stroke-width="1.5" stroke-linecap="round"/>`,
+    diploma: () => `<rect x="-19" y="-15" width="38" height="27" rx="3" fill="#fff6d6" stroke="#c9a14a" stroke-width="2.5"/><path d="M-12-6h24M-12 0h24M-12 6h13" stroke="#c9a14a" stroke-width="1.8" stroke-linecap="round"/><path d="M8 12l-4 10 6-3zM16 12l4 10-6-3z" fill="#c93d4f"/><circle cx="12" cy="10" r="6" fill="#ef5b6e" stroke="#a52b3d" stroke-width="1.5"/>`,
+    luna: () => `<path d="M8-17.2A19 19 0 1 0 8 17.2A24 24 0 0 1 8-17.2z" fill="#ffe27a" stroke="#d9a400" stroke-width="2.5" stroke-linejoin="round"/><polygon points="${star(15, -9, 3.5, 1.4, 4)}" fill="#fff"/><polygon points="${star(18, 8, 2.6, 1, 4)}" fill="#fff"/>`,
+  };
+  const DECO = ['alfombra', 'objeto', 'pared'];
+
   /* ---------- Fondos (escenas SVG, viewBox 0 0 200 250) ---------- */
   const FONDO = {
     aula: u => `<defs><linearGradient id="fa${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9c2"/><stop offset="1" stop-color="#ffd9a0"/></linearGradient></defs><rect width="200" height="250" fill="url(#fa${u})"/><rect x="18" y="34" width="164" height="96" rx="6" fill="#2f6b55" stroke="#a8743c" stroke-width="7"/><path d="M34 62q8-10 14 0t14 0M36 92h18M45 83v18M74 92h16M98 70l8 18 8-18M128 64h26M128 76h20M128 88h24" stroke="#e9fff4" stroke-opacity=".7" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="60" y="126" width="30" height="5" rx="2" fill="#fff"/><rect y="186" width="200" height="64" fill="#d99a5b"/><path d="M0 186h200" stroke="#b97a3f" stroke-width="4"/><path d="M0 210h200M0 234h200M40 186v24M120 186v24M80 210v24M160 210v24" stroke="#c4864a" stroke-width="2"/>`,
@@ -698,15 +741,21 @@ const Mon = (() => {
     const galaxia = c.color === 'galaxia' ? (() => { const r = rng(7); let o = ''; for (let i = 0; i < 26; i++) o += `<circle cx="${f1(25 + r() * 150)}" cy="${f1(g.t + r() * (190 - g.t))}" r="${f1(.6 + r() * 1.6)}" fill="#fff" opacity="${f1(.5 + r() * .5)}"/>`; return o; })() : '';
     const aura = c.efecto === 'aura' ? `<ellipse class="fx-pulse" cx="100" cy="${(g.t + 190) / 2}" rx="98" ry="${(190 - g.t) / 2 + 30}" fill="url(#au${u})"/>` : '';
     const pet = PET[c.mascota]();
+    // Decoración: el monstruo se encoge un poco para dejar sitio a los objetos (cabe en la misma escena)
+    const verDeco = !opts.vb || opts.deco;
+    const alf = verDeco && c.alfombra !== 'ninguna' ? `<g transform="translate(0 -3)">${ALFOMBRA[c.alfombra]()}</g>` : '';
+    const par = verDeco && c.pared !== 'ninguna' ? `<g transform="translate(32 24)">${PARED[c.pared]()}</g>` : '';
+    const obj = verDeco && c.objeto !== 'ninguno' ? `<g transform="translate(26 198)"><ellipse cy="1" rx="18" ry="3" fill="#000" opacity=".16"/>${OBJETO[c.objeto]()}</g>` : '';
+    const reduce = par || obj ? ' transform="translate(100 196) scale(.84) translate(-100 -196)"' : '';
     return `<svg viewBox="${opts.vb || '0 -34 200 250'}" class="mon${opts.anim === false ? ' quieto' : ''}${opts.vb ? ' zoom' : ''}" aria-hidden="true" focusable="false"><defs>${relleno(s)}<radialGradient id="au${u}"><stop offset=".45" stop-color="#ffe066" stop-opacity=".75"/><stop offset="1" stop-color="#ffe066" stop-opacity="0"/></radialGradient><mask id="mk${u}"><rect x="0" y="-40" width="200" height="260" fill="#fff"/><ellipse cx="100" cy="${f + 18}" rx="56" ry="47" fill="#000"/></mask><clipPath id="c${u}"><path d="${g.p}"/></clipPath></defs>
-<g class="cuerpo">${aura}<ellipse cx="100" cy="196" rx="62" ry="8" fill="#000" opacity=".16"/>
+${alf}${par}${obj}<g${reduce}><g class="cuerpo">${aura}<ellipse cx="100" cy="196" rx="62" ry="8" fill="#000" opacity=".16"/>
 ${c.comp === 'capa' ? capaTras(s, g) : ''}${delante ? '' : head}
 <g fill="${s.dk}" stroke="${line}" stroke-width="2"><ellipse cx="${g.ax}" cy="${f + 36}" rx="15" ry="10" transform="rotate(-32 ${g.ax} ${f + 36})"/><g class="brazo-d"><ellipse cx="${200 - g.ax}" cy="${f + 36}" rx="15" ry="10" transform="rotate(32 ${200 - g.ax} ${f + 36})"/></g><ellipse cx="76" cy="190" rx="20" ry="10.5"/><ellipse cx="124" cy="190" rx="20" ry="10.5"/></g>
 <path d="${g.p}" fill="url(#g${u})" stroke="${line}" stroke-width="2.5"/>
 <g clip-path="url(#c${u})">${galaxia}${c.color === 'arcoiris' ? `<ellipse cx="80" cy="${f}" rx="80" ry="70" fill="#fff" opacity=".22"/>` : ''}<ellipse cx="100" cy="${f + 62}" rx="42" ry="34" fill="${s.claro ? '#fff' : s.lt}" opacity="${s.claro ? .35 : .5}"/>${patron(c.patron, s, g)}<ellipse cx="70" cy="${g.t + 24}" rx="22" ry="10" fill="#fff" opacity=".35" transform="rotate(-25 70 ${g.t + 24})"/></g>
 ${delante ? head : ''}<circle cx="56" cy="${f + 21}" r="9.5" fill="#ff6f96" opacity=".38"/><circle cx="144" cy="${f + 21}" r="9.5" fill="#ff6f96" opacity=".38"/>
 ${P.map(p => eye(p[0], p[1], p[2], st, col)).join('')}${MOUTH[c.boca](f + 36)}${COMP[c.comp](s, g)}
-${hat ? `<g transform="translate(100 ${g.hy}) scale(${f1(sc)})">${hat}</g>` : ''}</g>
+${hat ? `<g transform="translate(100 ${g.hy}) scale(${f1(sc)})">${hat}</g>` : ''}</g></g>
 ${FX[c.efecto]()}${pet ? `<g transform="translate(172 184) scale(1.25)"><g class="pet">${pet}</g></g>` : ''}</svg>`;
   }
   function fondo(id, cls = '') {
@@ -720,6 +769,9 @@ ${FX[c.efecto]()}${pet ? `<g transform="translate(172 184) scale(1.25)"><g class
     if (cat === 'comp') return `14 ${fy - 40} 172 172`;
     if (cat === 'sombrero' || cat === 'cabeza') return `10 -38 180 180`;
     if (cat === 'mascota') return `92 104 116 116`;
+    if (cat === 'alfombra') return `10 112 180 180`;
+    if (cat === 'objeto') return `-4 140 62 62`;
+    if (cat === 'pared') return `0 -8 64 64`;
     return '';
   }
   // Monstruo inicial al azar (solo piezas gratis)
@@ -730,7 +782,7 @@ ${FX[c.efecto]()}${pet ? `<g transform="translate(172 184) scale(1.25)"><g class
   const NOMBRES = ['Zippo', 'Bubu', 'Pompón', 'Tiko', 'Lulo', 'Mochi', 'Pipo', 'Chispa', 'Gominola', 'Kiwi', 'Nube', 'Trufa', 'Bombón', 'Rayo', 'Coco', 'Fideo', 'Pistacho', 'Canela', 'Gusi', 'Momo', 'Brócoli', 'Panchi', 'Tofu', 'Burbuja', 'Peca', 'Yoyo', 'Choco', 'Pimienta', 'Mango', 'Ñoqui'];
   const nombreAzar = () => NOMBRES[Math.floor(Math.random() * NOMBRES.length)];
 
-  return { CAT, ORDEN, BASE, NIVELES, nivel, infoNivel, mapas, item, svg, fondo, aleatorio, nombreAzar, encuadre, star, HEART };
+  return { CAT, ORDEN, BASE, NIVELES, nivel, infoNivel, mapas, item, svg, fondo, aleatorio, nombreAzar, encuadre, star, HEART, esDeco: k => DECO.includes(k) };
 })();
 
 /* ===== Utilidades de interfaz comunes ===== */
