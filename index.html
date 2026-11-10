@@ -6,6 +6,9 @@
 <title>Mi monstruo · Aula Siurot</title>
 <meta name="theme-color" content="#0f2557">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='55' r='42' fill='%23ff8a1f'/%3E%3Ccircle cx='36' cy='48' r='10' fill='%23fff'/%3E%3Ccircle cx='64' cy='48' r='10' fill='%23fff'/%3E%3Ccircle cx='36' cy='49' r='5' fill='%2314234a'/%3E%3Ccircle cx='64' cy='49' r='5' fill='%2314234a'/%3E%3Cpath d='M36 70q14 12 28 0' stroke='%2314234a' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest-alumno.webmanifest">
+<link rel="apple-touch-icon" href="icono-alumno-180.png">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mi monstruo">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -113,6 +116,26 @@ button{cursor:pointer}
 .demo-aviso{background:#fff1c7;color:#6b4800;font-weight:700;font-size:13px;text-align:center;padding:6px 12px}
 .demo-aviso button{border:0;background:transparent;text-decoration:underline;font-weight:800;color:inherit;padding:0 4px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+#instalar{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:7px;border:0;border-radius:999px;padding:10px 16px;font:800 14px/1 'Nunito',system-ui,sans-serif;color:#fff;background:linear-gradient(135deg,#ff9a3d,#e8590c);box-shadow:0 6px 18px rgba(232,89,12,.45);cursor:pointer;animation:instPop .5s cubic-bezier(.3,1.5,.5,1)}
+#instalar:hover{filter:brightness(1.08)}
+@keyframes instPop{from{transform:translateY(30px) scale(.8);opacity:0}}
+@media print{#instalar{display:none}}
+
+body:has(#compra) #instalar,body:has(.modal-fondo) #instalar{display:none}
+
+#instalar-ban{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));z-index:70;width:min(560px,calc(100vw - 24px));display:grid;grid-template-columns:auto 1fr;gap:12px 14px;align-items:center;padding:14px 16px;border-radius:22px;background:#fff;color:#14234a;box-shadow:0 14px 40px rgba(15,37,87,.35),0 0 0 2px rgba(255,138,31,.55);transform:translate(-50%,140%);opacity:0;transition:transform .45s cubic-bezier(.3,1.3,.5,1),opacity .3s}
+#instalar-ban.on{transform:translate(-50%,0);opacity:1}
+#instalar-ban img{border-radius:16px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+#instalar-ban .ib-t{display:flex;flex-direction:column;gap:2px;font-family:'Nunito',system-ui,sans-serif}
+#instalar-ban .ib-t b{font:800 17px/1.2 'Baloo 2','Nunito',sans-serif}
+#instalar-ban .ib-t span{font-weight:700;font-size:14px;line-height:1.3;color:#4a5a86}
+#instalar-ban .ib-b{grid-column:1/-1;display:flex;gap:10px;justify-content:flex-end}
+#instalar-ban button{border:0;border-radius:999px;padding:11px 20px;font:800 15px/1 'Nunito',system-ui,sans-serif;cursor:pointer}
+#instalar-ban .ib-si{color:#fff;background:linear-gradient(135deg,#ff9a3d,#e8590c);box-shadow:0 4px 12px rgba(232,89,12,.4);flex:1;max-width:240px}
+#instalar-ban .ib-no{background:#eef2fc;color:#4a5a86}
+body:has(#compra) #instalar-ban{bottom:calc(86px + env(safe-area-inset-bottom))}
+@media print{#instalar-ban{display:none}}
 
 /* ===== Animaciones de los monstruitos ===== */
 .mon{display:block;overflow:visible}
@@ -701,6 +724,43 @@ function textoError(e) {
   const M = { 'auth/invalid-credential': 'Usuario o clave incorrectos.', 'auth/wrong-password': 'Usuario o clave incorrectos.', 'auth/user-not-found': 'Usuario o clave incorrectos.', 'auth/invalid-email': 'Ese usuario no es válido.', 'auth/too-many-requests': 'Demasiados intentos. Espera un momento y vuelve a probar.', 'auth/network-request-failed': 'Sin conexión a internet. Revisa la red.', 'auth/popup-closed-by-user': 'Has cerrado la ventana de Google antes de terminar.', 'auth/unauthorized-domain': 'Este dominio no está autorizado en Firebase (Authentication → Configuración → Dominios autorizados).', 'permission-denied': 'No tienes permiso para hacer esto.', 'unavailable': 'Sin conexión con el servidor. Se reintentará al volver la red.' };
   return M[c] || (e && e.message) || 'Algo ha fallado.';
 }
+
+/* ---------- App instalable (PWA) ---------- */
+const Instalar = (() => {
+  let ev = null, pil = null, ban = null;
+  const KEY = 'aula-instalar-no', DIAS = 7;
+  const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const maestro = () => document.body.dataset.app === 'maestro';
+  const callado = () => { try { return Date.now() - Number(localStorage.getItem(KEY) || 0) < DIAS * 864e5; } catch (e) { return false; } };
+  const recordar = () => { try { localStorage.setItem(KEY, String(Date.now())); } catch (e) { } };
+  async function instalar() {
+    if (ev) { ev.prompt(); try { await ev.userChoice; } catch (e) { } ev = null; quitar(); }
+    else modal({ titulo: '📲 Instalar la app', clase: 'pequeña', cuerpo: `<ol class="m-texto" style="text-align:left;line-height:1.7;padding-left:22px;margin:0"><li>Pulsa el botón <b>Compartir</b> <span style="display:inline-block;border:2px solid currentColor;border-radius:5px;padding:0 5px;font-size:13px">⬆</span> de Safari (abajo o arriba del todo).</li><li>Baja y elige <b>“Añadir a pantalla de inicio”</b>.</li><li>Pulsa <b>Añadir</b>. ¡Listo! Tendrás el icono como cualquier otra app.</li></ol>`, botones: [{ t: 'Entendido', cls: 'pri' }] });
+  }
+  function quitar() { if (pil) { pil.remove(); pil = null; } if (ban) { ban.remove(); ban = null; } }
+  function pastilla() {
+    if (pil) return;
+    pil = document.createElement('button'); pil.type = 'button'; pil.id = 'instalar'; pil.innerHTML = '<span>📲</span> Instalar app'; pil.onclick = instalar; document.body.append(pil);
+  }
+  function banner() {
+    const m = maestro();
+    ban = document.createElement('div'); ban.id = 'instalar-ban'; ban.setAttribute('role', 'dialog'); ban.setAttribute('aria-label', 'Instalar la app');
+    ban.innerHTML = `<img src="icono-${m ? 'admin' : 'alumno'}-192.png" alt="" width="64" height="64"><div class="ib-t"><b>${m ? 'Instala Aula Siurot' : '¡Lleva tu monstruo contigo!'}</b><span>${m ? 'Ábrela como una app desde el escritorio o la pantalla de inicio, sin buscar el enlace.' : 'Instala la app y entra con un toque, sin escribir la dirección.'}</span></div><div class="ib-b"><button type="button" class="ib-si">📲 Instalar</button><button type="button" class="ib-no">Ahora no</button></div>`;
+    ban.querySelector('.ib-si').onclick = instalar;
+    ban.querySelector('.ib-no').onclick = () => { recordar(); ban.classList.remove('on'); setTimeout(() => { ban && ban.remove(); ban = null; pastilla(); }, 300); };
+    document.body.append(ban); requestAnimationFrame(() => requestAnimationFrame(() => ban && ban.classList.add('on')));
+  }
+  function mostrar() {
+    if (standalone() || pil || ban) return;
+    if (callado()) pastilla(); else setTimeout(() => { if (!standalone() && !ban && !pil) banner(); }, 1800);
+  }
+  addEventListener('beforeinstallprompt', e => { e.preventDefault(); ev = e; mostrar(); });
+  addEventListener('appinstalled', () => { ev = null; quitar(); });
+  if (ios && !standalone()) addEventListener('load', () => setTimeout(mostrar, 800));
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
+  return { mostrar };
+})();
 
 /* ===== Capa de datos: Firebase o modo demostración ===== */
 const FB_VER = '12.6.0';
