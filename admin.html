@@ -1167,7 +1167,8 @@ const subs = {};
 const suscribir = (k, f) => { if (subs[k]) try { subs[k](); } catch (e) { } subs[k] = f; };
 const cancelar = k => { if (subs[k]) try { subs[k](); } catch (e) { } delete subs[k]; };
 const errorEscucha = e => { console.error(e); toast(textoError(e), { tipo: 'error' }); };
-const esAdmin = () => !!E.maestro && (E.maestro.rol === 'admin' || (E.sistema && E.sistema.admin === E.user.uid));
+// Solo el administrador principal (el primero que entró) tiene privilegios de administración.
+const esAdmin = () => !!E.maestro && !!E.sistema && E.sistema.admin === E.user.uid;
 const inicioHoy = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); };
 const ausentes = () => (E.clase && E.clase.ausentes && E.clase.ausentes.f === hoyISO()) ? E.clase.ausentes.ids || [] : [];
 const presentes = () => E.alumnos.filter(a => !ausentes().includes(a.uid));
@@ -1237,7 +1238,7 @@ function arrancarApp() {
     if (!m || m.estado !== 'activo') return alCambiarSesion(E.user);
     E.maestro = m; pintarNav(); pintarYo(); actualizarClases();
   }, errorEscucha));
-  suscribir('sis', Datos.verSistema(s => { E.sistema = s; completarCatalogo(); pintarNav(); if (E.vista === 'admin') pintarVista(); }, errorEscucha));
+  suscribir('sis', Datos.verSistema(s => { E.sistema = s; completarCatalogo(); actualizarClases(); pintarNav(); if (E.vista === 'admin') pintarVista(); }, errorEscucha));
   suscribir('clases', Datos.verClases(cs => { E.todasClases = cs; actualizarClases(); if (E.vista === 'admin') pintarVista(); }, errorEscucha));
 }
 function pintarSonido() { $('#b-son').textContent = Sonido.on ? '🔊' : '🔇'; }
@@ -1268,7 +1269,7 @@ function pintarVista() {
   ({ clase: vistaClase, herr: vistaHerramientas, rep: vistaInformes, ajustes: vistaAjustes, admin: vistaAdmin })[E.vista]();
 }
 function actualizarClases() {
-  E.clases = esAdmin() ? E.todasClases : E.todasClases.filter(c => (E.maestro.clases || []).includes(c.id));
+  E.clases = esAdmin() ? E.todasClases : E.todasClases.filter(c => ((E.maestro && E.maestro.clases) || []).includes(c.id));
   const b = $('#sel-clase span');
   if (!E.clases.find(c => c.id === E.claseId)) elegirClase(E.clases[0] ? E.clases[0].id : '');
   else if (b) b.textContent = E.clase ? E.clase.nombre : (E.clases.find(c => c.id === E.claseId) || {}).nombre || 'Clase';
@@ -1862,7 +1863,7 @@ function admMaestros(z) {
   const fila = m => `<div class="maestro-f"><div class="av">${esc((m.nombre || '?')[0].toUpperCase())}</div><div class="mt"><b>${esc(m.nombre)}${m.uid === E.user.uid ? ' (tú)' : ''}</b><small>${esc(m.email || '')}</small></div>`;
   html(z, `${pend.length ? `<div class="panel"><h2>Solicitudes pendientes</h2>${pend.map(m => `${fila(m)}<button class="btn sec chico" data-rech="${m.uid}">Rechazar</button><button class="btn verde chico" data-apr="${m.uid}">✓ Aprobar</button></div>`).join('')}</div>` : ''}
   <div class="panel"><h2>Profesorado con acceso</h2><p style="margin:-6px 0 6px;color:var(--tinta2);font-weight:700">Para dar de alta a alguien: que abra esta app y entre con su cuenta de Google. Su solicitud aparecerá aquí.</p>
-  ${act.map(m => `${fila(m)}<select class="inp" style="width:auto" data-rol="${m.uid}" ${m.uid === E.user.uid ? 'disabled' : ''}><option value="maestro" ${m.rol !== 'admin' ? 'selected' : ''}>Maestro</option><option value="admin" ${m.rol === 'admin' ? 'selected' : ''}>Administrador</option></select><button class="btn sec chico" data-cls="${m.uid}" title="Clases asignadas">🏫 ${m.rol === 'admin' ? 'Todas (admin)' : esc(nomClases(m.clases).join(', ') || 'Asignar clases')}</button>${m.uid !== E.user.uid ? `<button class="btn fant chico" data-rech="${m.uid}" title="Quitar acceso">🚫</button>` : ''}</div>`).join('') || '<div class="vacio">Nadie todavía.</div>'}</div>
+  ${act.map(m => `${fila(m)}<span class="chip" style="font-weight:800;color:var(--tinta2)">${m.uid === E.user.uid ? 'Administrador' : 'Maestro'}</span><button class="btn sec chico" data-cls="${m.uid}" title="Clases asignadas">🏫 ${m.uid === E.user.uid ? 'Todas (admin)' : esc(nomClases(m.clases).join(', ') || 'Asignar clases')}</button>${m.uid !== E.user.uid ? `<button class="btn fant chico" data-rech="${m.uid}" title="Quitar acceso">🚫</button>` : ''}</div>`).join('') || '<div class="vacio">Nadie todavía.</div>'}</div>
   ${baja.length ? `<div class="panel"><h2>Sin acceso</h2>${baja.map(m => `${fila(m)}<button class="btn sec chico" data-apr="${m.uid}">Readmitir</button><button class="btn fant chico" data-borrar="${m.uid}">Borrar</button></div>`).join('')}</div>` : ''}`);
   z.onclick = async e => {
     const b = e.target.closest('button'); if (!b) return; const m = ms.find(x => x.uid === (b.dataset.apr || b.dataset.rech || b.dataset.cls || b.dataset.borrar)); if (!m) return;
@@ -1873,7 +1874,6 @@ function admMaestros(z) {
       if (b.dataset.borrar && await confirmar(`Se borrará el registro de ${esc(m.nombre)}. Si vuelve a entrar, aparecerá como solicitud nueva.`, { si: 'Borrar', peligro: true })) await Datos.borrarMaestro(m.uid);
     } catch (err) { errorEscucha(err); }
   };
-  $$('[data-rol]', z).forEach(s => s.onchange = () => Datos.guardarMaestro(s.dataset.rol, { rol: s.value }).then(() => toast('Rol actualizado', { tipo: 'ok' })).catch(errorEscucha));
 }
 async function asignarClases(m) {
   if (!E.todasClases.length) return avisar('Primero crea las clases en “Clases y alumnado”.');
