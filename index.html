@@ -324,6 +324,12 @@ body:has(#compra) #instalar-ban{bottom:calc(86px + env(safe-area-inset-bottom))}
 .hue-pasos i{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.25);transition:.25s}
 .hue-pasos i.on{background:#ffd23a;transform:scale(1.25);box-shadow:0 0 10px #ffd23a}
 @media(max-height:640px){.huevo-pant .huevo-esc{width:min(56vw,230px)}}
+/* En ordenador (ratón/trackpad) no se puede "deslizar": las pestañas del taller se reparten en varias filas, todas a la vista */
+@media (hover:hover) and (pointer:fine){
+  .cats{flex-wrap:wrap;overflow:visible;gap:6px;padding:2px 0 6px}
+  .cats button{padding:6px 11px;min-height:36px;font-size:14px;cursor:pointer}
+  .cats button:hover:not([aria-pressed=true]){background:rgba(255,255,255,.26)}
+}
 
 </style>
 </head>
